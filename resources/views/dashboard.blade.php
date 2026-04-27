@@ -1,6 +1,10 @@
 {{-- Vista principal (Dashboard) donde se muestran las métricas financieras e interacciones clave --}}
 @extends('layouts.app')
 
+@push('styles')
+    @vite(['resources/css/dashboard.css'])
+@endpush
+
 @section('title', 'Dashboard')
 
 @section('content')
@@ -30,77 +34,39 @@
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-<style>
-  .serif { font-family: 'Playfair Display', serif; }
-  body, * { font-family: 'DM Sans', sans-serif; }
-  
-  /* Modern Glass Cards */
-  .card-pastel { 
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.01);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-  }
-  .card-pastel:hover { 
-      transform: translateY(-3px); 
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03); 
-      border-color: rgba(255, 255, 255, 0.9);
-  }
-  
-  input[type=range] { accent-color: #4a7c59; }
-  
-  /* Buttons */
-  .btn-primary { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74, 124, 89, 0.2); }
-  .btn-danger { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-  .btn-danger:hover { background: #c05050 !important; color: white; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(192, 80, 80, 0.2); }
 
-  /* TomSelect Styles - Modernized */
-  .ts-control { background-color: rgba(255,255,255,0.7) !important; border: 1px solid rgba(200,210,205,0.5) !important; border-radius: 0.75rem !important; padding: 0.5rem 0.75rem !important; font-size: 0.875rem !important; color: #1e293b !important; box-shadow: none !important; backdrop-filter: blur(4px); transition: all 0.2s; }
-  .ts-control.focus { border-color: #a8c8a0 !important; box-shadow: 0 0 0 3px rgba(168, 200, 160, 0.3) !important; background-color: #ffffff !important; }
-  .ts-dropdown { border: 1px solid #e2e8f0 !important; border-radius: 0.75rem !important; overflow: hidden; margin-top: 4px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); z-index: 9999; backdrop-filter: blur(12px); background: rgba(255,255,255,0.95); }
-  .ts-dropdown .option { padding: 0.5rem 0.75rem; font-size: 0.875rem; transition: background 0.15s; }
-  .ts-dropdown .active { background-color: #f1f5f9 !important; color: #0f172a !important; font-weight: 500; }
-  .linea-venta { z-index: 10; position: relative; }
-
-  /* Dashboard Animations */
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-</style>
 
 
 {{-- ══════════════ HEADER ══════════════ --}}
-<div class="flex items-center justify-between mb-8 animate-fade-in">
+<div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-8 animate-fade-in gap-5 xl:gap-0">
   <div>
     <p class="text-slate-500 text-xs font-semibold tracking-widest uppercase mb-1 drop-shadow-sm">Panel principal</p>
-    <h1 class="text-slate-800 text-3xl font-light tracking-tight leading-tight drop-shadow-sm">
+    <h1 class="text-slate-800 text-2xl md:text-3xl font-light tracking-tight leading-tight drop-shadow-sm">
       Buenos días, <em class="text-[#4a7c59] font-medium not-italic drop-shadow-[0_2px_10px_rgba(74,124,89,0.2)]">{{ $negocio->nombre_comercial ?? 'Negocio' }}.</em>
     </h1>
   </div>
-    <div class="flex gap-3">
+    <div class="flex flex-wrap gap-2 lg:gap-3 w-full xl:w-auto">
         @if($negocio->tieneInventario())
         <a href="{{ route('inventario.index') }}"
-        class="flex items-center gap-2 bg-white/60 backdrop-blur-md text-[#2d4a35] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-emerald-100/50 shadow-sm">
+        class="flex items-center justify-center gap-2 bg-white/60 backdrop-blur-md text-[#2d4a35] text-xs md:text-sm font-medium px-4 md:px-5 py-2.5 rounded-xl hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-emerald-100/50 shadow-sm flex-1 md:flex-none">
         <i class="bi bi-box-seam"></i><span>Inventario</span>
         </a>
         @endif
         @if($negocio->esReventa())
         <button onclick="abrirCierreCaja()"
-        class="flex items-center gap-2 bg-white/60 backdrop-blur-md text-[#2d4a35] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-emerald-100/50 shadow-sm">
-        <i class="bi bi-cash-stack"></i><span>Cierre de caja</span>
+        class="flex items-center justify-center gap-2 bg-white/60 backdrop-blur-md text-[#2d4a35] text-xs md:text-sm font-medium px-4 md:px-5 py-2.5 rounded-xl hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border border-emerald-100/50 shadow-sm flex-1 md:flex-none">
+        <i class="bi bi-cash-stack"></i><span class="whitespace-nowrap">Cierre caja</span>
         </button>
         @endif
         @if($negocio->esReventa())
         <button onclick="abrirAgenteIA()"
-            class="flex items-center gap-2 bg-gradient-to-r from-[#2d4a35] to-[#3d5e45] text-white text-sm font-medium
-                px-5 py-2.5 rounded-xl shadow-md hover:shadow-xl hover:shadow-[#4a7c59]/30 hover:-translate-y-0.5 transition-all duration-300">
-            <i class="bi bi-stars"></i><span>Análisis IA</span>
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-[#2d4a35] to-[#3d5e45] text-white text-xs md:text-sm font-medium
+                px-4 md:px-5 py-2.5 rounded-xl shadow-md hover:shadow-xl hover:shadow-[#4a7c59]/30 hover:-translate-y-0.5 transition-all duration-300 flex-1 md:flex-none">
+            <i class="bi bi-stars"></i><span class="whitespace-nowrap">Análisis IA</span>
         </button>
         @endif
         <button onclick="abrirHistorial()"
-        class="btn-danger flex items-center gap-2 bg-gradient-to-r from-red-50 to-rose-50 border border-red-100/50 text-red-600 shadow-sm text-sm font-medium px-5 py-2.5 rounded-xl hover:shadow-md transition-all duration-300">
+        class="btn-danger flex items-center justify-center gap-2 bg-gradient-to-r from-red-50 to-rose-50 border border-red-100/50 text-red-600 shadow-sm text-xs md:text-sm font-medium px-4 md:px-5 py-2.5 rounded-xl hover:shadow-md transition-all duration-300 flex-1 md:flex-none">
         <i class="bi bi-clock-history"></i><span>Historial</span>
         </button>
     </div>
@@ -140,16 +106,16 @@
               <h3 class="text-xl font-semibold mb-4 {{ $bannerData->ventas_real >= $bannerData->meta ? 'text-emerald-900 drop-shadow-sm' : 'text-rose-900 drop-shadow-sm' }}">
                   {{ $bannerData->ventas_real >= $bannerData->meta ? '🎉 ¡Superaste tu proyección!' : '⚠️ No alcanzaste tu proyección' }}
               </h3>
-              <div class="grid grid-cols-3 gap-6 bg-white/40 rounded-xl p-4 border border-white/50">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 bg-white/40 rounded-xl p-4 border border-white/50 mt-4 md:mt-0">
                   <div>
                       <p class="text-[0.65rem] text-slate-500 font-bold uppercase tracking-widest mb-1">Ventas reales</p>
                       <p class="font-bold text-slate-800 text-lg">{{ $negocio->moneda }} {{ number_format($bannerData->ventas_real, 0, ',', '.') }}</p>
                   </div>
-                  <div class="border-l border-white/40 pl-6">
+                  <div class="border-t md:border-t-0 md:border-l border-white/40 pt-3 md:pt-0 md:pl-6">
                       <p class="text-[0.65rem] text-slate-500 font-bold uppercase tracking-widest mb-1">Proyección era</p>
                       <p class="font-bold text-slate-800 text-lg">{{ $negocio->moneda }} {{ number_format($bannerData->meta, 0, ',', '.') }}</p>
                   </div>
-                  <div class="border-l border-white/40 pl-6">
+                  <div class="border-t md:border-t-0 md:border-l border-white/40 pt-3 md:pt-0 md:pl-6">
                       <p class="text-[0.65rem] text-emerald-600 font-bold uppercase tracking-widest mb-1">Nueva proyección</p>
                       <p class="font-bold text-emerald-900 text-lg">{{ $negocio->moneda }} {{ number_format($metaMes->meta, 0, ',', '.') }}</p>
                   </div>
@@ -220,7 +186,7 @@
             <input type="hidden" name="descripcion" value="Venta del día">
 
             <div id="lineasVenta"
-                 class="space-y-2 mb-2"
+                 class="space-y-2 mb-2 max-h-[170px] overflow-y-auto pr-1 custom-scrollbar"
                  style="min-height: 50px;">
             </div>
 
@@ -243,15 +209,16 @@
                 </div>
 
                 <select name="metodo_pago" id="inputMetodoPago"
-                    class="flex-shrink-0 pl-3 pr-7 py-2 bg-white/70 backdrop-blur-sm border border-slate-200
-                           rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all">
-                    <option value="efectivo">💵 Efectivo</option>
-                    <option value="transferencia">📱 Transferencia</option>
+                    class="appearance-none flex-shrink-0 pl-4 pr-10 py-2 bg-white/70 backdrop-blur-md border border-emerald-100/50
+                           rounded-xl text-sm font-medium text-[#2d4a35] focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/40 focus:border-[#4a7c59]/50 transition-all shadow-sm hover:shadow-md cursor-pointer bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]" 
+                    style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232d4a35%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')">
+                    <option value="efectivo" class="bg-white text-slate-800 font-medium py-1">💵 Efectivo</option>
+                    <option value="transferencia" class="bg-white text-slate-800 font-medium py-1">📱 Transferencia</option>
                 </select>
 
                 <button type="submit"
-                    class="btn-primary flex-shrink-0 bg-gradient-to-r from-[#2d4a35] to-[#3d5e45] text-white font-medium
-                           text-sm px-6 py-2 rounded-xl shadow-md cursor-pointer">
+                    class="btn-primary flex-shrink-0 w-full md:w-auto bg-gradient-to-r from-[#2d4a35] to-[#3d5e45] text-white font-medium
+                           text-sm px-6 py-2 rounded-xl shadow-md cursor-pointer mt-2 md:mt-0">
                     <i class="bi bi-check-lg mr-1"></i> Registrar venta
                 </button>
             </div>
@@ -595,7 +562,7 @@
     <div id="modalCierreCaja"
     class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 transition-all duration-300">
 
-    <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 border border-white/50 animate-fade-in">
+    <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-xl mx-4 p-6 border border-white/50 animate-fade-in">
 
         {{-- Header --}}
         <div class="flex justify-between items-center mb-6">
@@ -624,27 +591,27 @@
         @endphp
 
         {{-- Cards resumen --}}
-        <div class="grid grid-cols-3 gap-3 mb-5">
-        <div class="bg-[#d6e8d0] border border-[#a8c8a0] rounded-xl p-3 text-center">
-            <p class="text-[#4a7c59] text-xs uppercase tracking-wide font-medium mb-1">Total vendido</p>
-            <p class="text-[#2d4a35] text-lg font-bold">
+        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+            <p class="text-emerald-700 text-[0.65rem] uppercase tracking-widest font-bold mb-1">Total vendido</p>
+            <p class="text-emerald-900 text-lg font-bold">
             {{ $negocio->moneda }} {{ number_format($totalHoy, 0, ',', '.') }}
             </p>
-            <p class="text-[#4a7c59] text-xs mt-0.5">{{ $cantidadVentas }} {{ $cantidadVentas === 1 ? 'venta' : 'ventas' }}</p>
+            <p class="text-emerald-600 text-[0.6rem] mt-0.5 font-medium">{{ $cantidadVentas }} {{ $cantidadVentas === 1 ? 'venta' : 'ventas' }}</p>
         </div>
-        <div class="bg-white border border-[#e8e4e0] rounded-xl p-3 text-center">
-            <p class="text-[#8a8280] text-xs uppercase tracking-wide font-medium mb-1">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-center shadow-sm">
+            <p class="text-slate-500 text-[0.65rem] uppercase tracking-widest font-bold mb-1">
             <i class="bi bi-cash mr-1"></i>Efectivo
             </p>
-            <p class="text-[#2a2522] text-lg font-bold">
+            <p class="text-slate-800 text-lg font-bold">
             {{ $negocio->moneda }} {{ number_format($totalEfectivo, 0, ',', '.') }}
             </p>
         </div>
-        <div class="bg-white border border-[#e8e4e0] rounded-xl p-3 text-center">
-            <p class="text-[#8a8280] text-xs uppercase tracking-wide font-medium mb-1">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-center shadow-sm">
+            <p class="text-slate-500 text-[0.65rem] uppercase tracking-widest font-bold mb-1">
             <i class="bi bi-phone mr-1"></i>Transferencia
             </p>
-            <p class="text-[#2a2522] text-lg font-bold">
+            <p class="text-slate-800 text-lg font-bold">
             {{ $negocio->moneda }} {{ number_format($totalTransfer, 0, ',', '.') }}
             </p>
         </div>
@@ -652,43 +619,43 @@
 
         {{-- Detalle de ventas del día --}}
         @if($ventasHoy->count() > 0)
-        <div class="border border-[#f0ede8] rounded-xl overflow-hidden mb-4">
-        <div class="bg-[#faf9f7] px-4 py-2.5 border-b border-[#f0ede8]">
-            <p class="text-[#8a8280] text-xs font-medium tracking-widest uppercase">Detalle de ventas de hoy</p>
+        <div class="border border-slate-200 rounded-xl overflow-hidden mb-4 shadow-sm">
+        <div class="bg-slate-50 px-4 py-2 border-b border-slate-200">
+            <p class="text-slate-500 text-[0.65rem] font-bold tracking-widest uppercase">Detalle de ventas de hoy</p>
         </div>
-        <div class="max-h-52 overflow-y-auto">
-            <table class="w-full text-sm">
+        <div class="max-h-52 overflow-y-auto overflow-x-auto w-full">
+            <table class="w-full text-sm min-w-[400px] border-collapse">
             <thead>
-                <tr class="bg-[#d6e8d0]">
-                <th class="px-4 py-2 text-left text-[#2d4a35] text-xs uppercase tracking-wide font-medium">Hora</th>
-                <th class="px-4 py-2 text-left text-[#2d4a35] text-xs uppercase tracking-wide font-medium">Concepto</th>
-                <th class="px-4 py-2 text-center text-[#2d4a35] text-xs uppercase tracking-wide font-medium">Método</th>
-                <th class="px-4 py-2 text-right text-[#2d4a35] text-xs uppercase tracking-wide font-medium">Monto</th>
+                <tr class="text-white">
+                <th class="bg-[#2d4a35] px-4 py-2.5 text-left text-xs uppercase tracking-widest font-semibold border-r border-[#3d5e45]">Hora</th>
+                <th class="bg-[#2d4a35] px-4 py-2.5 text-left text-xs uppercase tracking-widest font-semibold border-r border-[#3d5e45]">Concepto</th>
+                <th class="bg-[#2d4a35] px-4 py-2.5 text-center text-xs uppercase tracking-widest font-semibold border-r border-[#3d5e45]">Método</th>
+                <th class="bg-[#2d4a35] px-4 py-2.5 text-right text-xs uppercase tracking-widest font-semibold">Monto</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 @foreach($ventasHoy->sortByDesc('created_at') as $venta)
-                <tr class="border-b border-[#f0ede8] hover:bg-[#faf8f5] transition">
-                <td class="px-4 py-2.5 text-[#9a9390] text-xs">
+                <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-2.5 text-slate-500 text-xs border-r border-slate-100">
                     {{ \Carbon\Carbon::parse($venta->created_at)->format('H:i') }}
                 </td>
-                <td class="px-4 py-2.5 text-[#2a2522]">
+                <td class="px-4 py-2.5 text-slate-800 border-r border-slate-100">
                     {{ $venta->descripcion ?? 'Venta' }}
                 </td>
-                <td class="px-4 py-2.5 text-center">
+                <td class="px-4 py-2.5 text-center border-r border-slate-100">
                     @if($venta->metodo_pago === 'efectivo')
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs
-                                bg-[#d6e8d0] text-[#2d4a35] font-medium">
-                        <i class="bi bi-cash text-xs"></i> Efectivo
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.65rem]
+                                bg-emerald-100 text-emerald-800 font-medium">
+                        <i class="bi bi-cash"></i> Efectivo
                     </span>
                     @else
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs
-                                bg-[#dce8f5] text-[#2d5a8a] font-medium">
-                        <i class="bi bi-phone text-xs"></i> Transfer.
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.65rem]
+                                bg-blue-100 text-blue-800 font-medium">
+                        <i class="bi bi-phone"></i> Transf.
                     </span>
                     @endif
                 </td>
-                <td class="px-4 py-2.5 text-right font-semibold text-[#2a2522]">
+                <td class="px-4 py-2.5 text-right font-semibold text-slate-900">
                     {{ $negocio->moneda }} {{ number_format($venta->monto, 0, ',', '.') }}
                 </td>
                 </tr>
@@ -745,14 +712,14 @@
             Gastos
         </button>
     </div>
-    <div class="max-h-96 overflow-y-auto">
-      <table class="w-full text-sm">
+    <div class="max-h-96 overflow-y-auto overflow-x-auto w-full">
+      <table class="w-full text-sm min-w-[500px]">
         <thead>
-          <tr class="bg-[#d6e8d0]">
-          <th class="px-4 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium rounded-tl-xl">Fecha</th>
-          <th class="px-4 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Descripción</th>
-          <th class="px-4 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Monto</th>
-          <th class="px-4 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium rounded-tr-xl">Acciones</th>
+          <tr class="text-white">
+          <th class="bg-[#2d4a35] px-4 py-3 text-left text-xs tracking-widest uppercase font-semibold rounded-tl-xl whitespace-nowrap">Fecha</th>
+          <th class="bg-[#2d4a35] px-4 py-3 text-left text-xs tracking-widest uppercase font-semibold">Descripción</th>
+          <th class="bg-[#2d4a35] px-4 py-3 text-left text-xs tracking-widest uppercase font-semibold whitespace-nowrap">Monto</th>
+          <th class="bg-[#2d4a35] px-4 py-3 text-left text-xs tracking-widest uppercase font-semibold rounded-tr-xl whitespace-nowrap">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -763,23 +730,29 @@
     @if(\Carbon\Carbon::parse($movimiento->fecha)->startOfDay()->gte($ayerStart))
     <tr class="border-b border-[#f0ede8] hover:bg-[#faf8f5] transition fila-movimiento"
         data-tipo="{{ $movimiento->es_venta ? 'ventas' : 'gastos' }}">
-        <td class="px-4 py-3 text-[#9a9390] text-xs">
+        <td class="px-4 py-3 text-[#9a9390] text-xs whitespace-nowrap">
             {{ \Carbon\Carbon::parse($movimiento->fecha)->format('d/m/Y') }}
         </td>
-        <td class="px-4 py-3 text-[#2a2522]">
+        <td class="px-4 py-3 text-[#2a2522] min-w-[150px]">
             {{ $movimiento->descripcion ?? 'Venta' }}
         </td>
-        <td class="px-4 py-3 font-medium text-[#2a2522]">
+        <td class="px-4 py-3 font-medium text-[#2a2522] whitespace-nowrap">
             {{ $negocio->moneda }} {{ number_format($movimiento->monto,2,',','.') }}
         </td>
-        <td class="px-4 py-3 flex gap-2">
+        <td class="px-4 py-3 flex gap-2 whitespace-nowrap">
+            @php
+                $tieneDetalles = ($movimiento->es_venta && $movimiento->ventas_detalle_count > 0) || (!$movimiento->es_venta && $movimiento->compras_detalle_count > 0);
+            @endphp
+            @if(!$tieneDetalles)
             <button
                 class="bg-[#dcedf5] text-[#3a6a9a] px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[#b8d8f0] transition btn-editar"
                 data-id="{{ $movimiento->id }}"
                 data-descripcion="{{ $movimiento->descripcion }}"
-                data-monto="{{ $movimiento->monto }}">
+                data-monto="{{ $movimiento->monto }}"
+                data-fecha="{{ \Carbon\Carbon::parse($movimiento->fecha)->format('Y-m-d') }}">
                 <i class="bi bi-pencil-square"></i>
             </button>
+            @endif
             <form action="{{ route('movimiento.eliminar', $movimiento->id) }}"
                 method="POST"
                 onsubmit="return confirm('¿Eliminar este movimiento?')">
@@ -820,6 +793,12 @@
         <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Descripción</label>
         <input id="editDescripcion" name="descripcion"
           class="w-full border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0] focus:border-transparent">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Fecha (No editable)</label>
+        <input id="editFecha" name="fecha" type="date" required readonly
+          class="w-full bg-slate-50 border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#9a9390] cursor-not-allowed focus:outline-none">
       </div>
 
       <div class="mb-6">
@@ -1075,6 +1054,7 @@
 
         new TomSelect('#' + selectId, {
             create: false,
+            dropdownParent: 'body',
             sortField: {
                 field: "text",
                 direction: "asc"
@@ -1082,6 +1062,7 @@
         });
 
         calcularTotalVenta();
+        contenedor.scrollTop = contenedor.scrollHeight;
     }
 
     function onProductoChange(select) {
@@ -1126,6 +1107,7 @@
         if (document.getElementById('selEntradaMercancia')) {
             new TomSelect('#selEntradaMercancia', {
                 create: false,
+                dropdownParent: 'body',
                 sortField: {
                     field: "text",
                     direction: "asc"

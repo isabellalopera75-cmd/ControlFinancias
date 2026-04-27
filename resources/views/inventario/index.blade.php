@@ -1,61 +1,70 @@
 @extends('layouts.app')
 @section('title', 'Inventario')
 
+@push('styles')
+    @vite(['resources/css/inventario.css'])
+@endpush
+
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-    .serif { font-family: 'Playfair Display', serif; }
-    body, * { font-family: 'DM Sans', sans-serif; }
-    .card-pastel { transition: transform .2s, box-shadow .2s; }
-    .card-pastel:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
-</style>
 
-    {{-- HEADER --}}
-<div class="flex items-center justify-between mb-6">
+
+{{-- HEADER --}}
+<div class="max-w-6xl mx-auto flex items-center justify-between mb-6 px-4">
         <div>
-            <p class="text-[#9a9390] text-xs tracking-widests uppercase mb-1">Módulo</p>
+            <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Módulo</p>
             <h1 class="text-[#2a2522] text-3xl leading-tight">
                 Gestión de <em class="text-[#4a7c59]">Inventario</em>
             </h1>
         </div>
     <div class="flex gap-3">
         <a href="{{ route('inventario.create') }}"
-            class="flex items-center gap-2 bg-[#2d4a35] text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[#3d5e45] transition">
+            class="premium-button-emerald">
             <i class="bi bi-plus-lg"></i> Nuevo ítem
         </a>
     </div>
 </div>
 
 {{-- PESTAÑAS --}}
-<div class="flex gap-1 mb-6 bg-[#f0ede8] p-1 rounded-xl w-fit">
-    <a href="{{ route('inventario.index') }}"
-        class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-               bg-white text-[#2d4a35] shadow-sm">
-        <i class="bi bi-box-seam mr-1.5"></i> Productos
-    </a>
-    <a href="{{ route('inventario.entradas') }}"
-        class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-               text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
-        <i class="bi bi-truck mr-1.5"></i> Entradas
-    </a>
+<div class="max-w-6xl mx-auto mb-6 px-4">
+    <div class="flex gap-1 bg-[#f0ede8] p-1 rounded-xl w-fit">
+        <a href="{{ route('inventario.index') }}"
+            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                   bg-white text-[#2d4a35] shadow-sm">
+            <i class="bi bi-box-seam mr-1.5"></i> Productos
+        </a>
+        <a href="{{ route('inventario.entradas') }}"
+            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                   text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
+            <i class="bi bi-truck mr-1.5"></i> Entradas
+        </a>
+    </div>
 </div>
 
 {{-- ALERTA STOCK BAJO --}}
 @if($stockBajo > 0)
-<div class="mb-6 bg-[#f2d8d8] border border-[#e0b0b0] rounded-2xl px-5 py-4 flex items-center gap-3">
-    <i class="bi bi-exclamation-triangle-fill text-[#8a3a3a] text-xl"></i>
-    <div>
-        <p class="text-[#8a3a3a] text-sm font-semibold">
-            {{ $stockBajo }} {{ $stockBajo === 1 ? 'ítem tiene' : 'ítems tienen' }} stock bajo el mínimo
-        </p>
-        <p class="text-[#8a3a3a] text-xs mt-0.5">Revisa los ítems marcados en rojo y considera hacer una compra.</p>
+<div class="max-w-6xl mx-auto mb-6 px-4" id="alertStockBajo">
+    <div class="bg-red-50 border border-red-100 rounded-2xl px-5 py-2.5 flex items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle-fill text-red-500 text-lg"></i>
+            <div>
+                <p class="text-red-800 text-sm font-semibold">
+                    {{ $stockBajo }} {{ $stockBajo === 1 ? 'ítem tiene' : 'ítems tienen' }} stock bajo el mínimo
+                </p>
+                <p class="text-red-600/80 text-xs">Considera realizar una compra pronto.</p>
+            </div>
+        </div>
+        <button onclick="document.getElementById('alertStockBajo').remove()" 
+            class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-100 text-red-400 transition-colors">
+            <i class="bi bi-x-lg text-xs"></i>
+        </button>
     </div>
 </div>
 @endif
 
 
 {{-- FILTROS POR CATEGORÍA --}}
-<div class="flex gap-2 mb-5 flex-wrap">
+<div class="max-w-6xl mx-auto flex gap-2 mb-5 flex-wrap px-4">
     <a href="{{ route('inventario.index') }}"
         class="px-4 py-1.5 rounded-xl text-xs font-medium transition-all
         {{ !request('filtro_categoria') ? 'bg-[#2d4a35] text-white' : 'bg-[#f5f3ef] text-[#9a9390] hover:bg-[#ede8e2]' }}">
@@ -71,138 +80,121 @@
 </div>
 
 {{-- TABLA DE ÍTEMS --}}
-<div class="bg-white rounded-2xl shadow-sm border border-[#ede8e2] overflow-hidden">
-    @if($items->isEmpty())
-    <div class="p-12 text-center">
-        <div class="w-14 h-14 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="bi bi-box-seam text-[#b0a8a0] text-2xl"></i>
-        </div>
-        <p class="text-[#9a9390] text-sm">Aún no tienes ítems registrados.</p>
-        <a href="{{ route('inventario.create') }}"
-            class="inline-block mt-4 bg-[#2d4a35] text-white text-sm px-5 py-2.5 rounded-xl hover:bg-[#3d5e45] transition">
-            + Agregar primer ítem
-        </a>
-    </div>
-    @else
-    <table class="w-full text-sm">
-        <thead>
-            <tr class="bg-[#d6e8d0]">
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Nombre</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Tipo</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Stock</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Costo</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Precio venta</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Margen</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium rounded-tr-xl">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-@foreach($items as $item)
-@php
-    $stockBajoItem = $item->tiene_stock && $item->stock <= $item->stock_minimo;
-    $costo = $item->costo_compra;
-    $precio = $item->precio_venta;
+<div class="max-w-6xl mx-auto px-4 mb-10">
+    <div class="glass-card overflow-hidden">
+        <div class="max-h-[600px] overflow-y-auto custom-scrollbar">
+            @if($items->isEmpty())
+            <div class="p-12 text-center">
+                <div class="w-14 h-14 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-box-seam text-[#b0a8a0] text-2xl"></i>
+                </div>
+                <p class="text-[#9a9390] text-sm">Aún no tienes ítems registrados.</p>
+                <a href="{{ route('inventario.create') }}"
+                    class="inline-block mt-4 premium-button-emerald mx-auto">
+                    + Agregar primer ítem
+                </a>
+            </div>
+            @else
+            <table class="w-full text-sm border-collapse">
+                <thead class="sticky top-0 z-10">
+                    <tr class="text-white">
+                        <th class="bg-[#2d4a35] px-5 py-4 text-center text-xs tracking-widest uppercase font-semibold rounded-tl-xl">Nombre</th>
+                        <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Stock</th>
+                        <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Costo</th>
+                        <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Precio venta</th>
+                        <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Margen</th>
+                        <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold rounded-tr-xl">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+        @foreach($items as $item)
+        @php
+            $stockBajoItem = $item->tiene_stock && $item->stock <= $item->stock_minimo;
+            $costo = $item->costo_compra;
+            $precio = $item->precio_venta;
 
-    $margen = $precio > 0
-        ? round((($precio - $costo) / $precio) * 100, 1)
-        : 0;
+            $margen = $precio > 0
+                ? round((($precio - $costo) / $precio) * 100, 1)
+                : 0;
+        @endphp
 
-    $unidadesEnteras = ['ud', 'caja', 'paquete'];
-    $decimales = in_array($item->unidad, $unidadesEnteras) ? 0 : 2;
-@endphp
+        <tr class="border-b border-slate-100 hover:bg-emerald-50/30 transition fila-item"
+            data-tipo="{{ $item->tipo }}">
 
-<tr class="border-b border-[#f0ede8] hover:bg-[#faf8f5] transition fila-item"
-    data-tipo="{{ $item->tipo }}">
+            <td class="px-5 py-3 text-[#2a2522] font-medium text-center border-r border-slate-100">
+                {{ $item->nombre }}
+                @if($stockBajoItem)
+                    <span class="ml-1 inline-block w-2 h-2 bg-red-400 rounded-full" title="Stock bajo"></span>
+                @endif
+            </td>
 
-    <td class="px-5 py-3 text-[#2a2522] font-medium">
-        {{ $item->nombre }}
-        @if($stockBajoItem)
-            <span class="ml-1 inline-block w-2 h-2 bg-red-400 rounded-full" title="Stock bajo"></span>
-        @endif
-    </td>
+            <td class="px-5 py-3 {{ $stockBajoItem ? 'text-red-500 font-bold' : 'text-slate-600' }} border-r border-slate-100">
+                @if($item->tiene_stock)
+                    {{ number_format($item->stock, 0) }} <span class="text-[0.65rem] {{ $stockBajoItem ? 'text-red-400' : 'text-slate-400' }}">UD</span>
+                    @if($stockBajoItem)
+                        <span class="text-[0.6rem] text-red-400 block font-normal">Mín: {{ number_format($item->stock_minimo, 0) }}</span>
+                    @endif
+                @else
+                    <span class="text-slate-300 text-xs">—</span>
+                @endif
+            </td>
 
-    <td class="px-5 py-3">
-        <span class="px-2.5 py-1 rounded-lg text-xs font-medium
-            {{ $item->tipo === 'insumo' ? 'bg-[#fff3cd] text-[#856404]' : '' }}
-            {{ $item->tipo === 'producto' ? 'bg-[#d6e8d0] text-[#2d4a35]' : '' }}
-            {{ $item->tipo === 'servicio' ? 'bg-[#dce8f5] text-[#2d5a8a]' : '' }}">
-            {{ ucfirst($item->tipo) }}
-        </span>
-    </td>
+            <td class="px-5 py-3 text-slate-600 border-r border-slate-100">
+                {{ $negocio->moneda }} {{ number_format($item->costo_compra, 0, ',', '.') }}
+            </td>
 
-    <td class="px-5 py-3 {{ $stockBajoItem ? 'text-red-400 font-semibold' : 'text-[#2a2522]' }}">
-        @if($item->tiene_stock)
-            {{-- Forzamos a que diga 'ud' en lugar de $item->unidad --}}
-            {{ number_format($item->stock, 0) }} <span class="text-xs {{ $stockBajoItem ? 'text-red-400' : 'text-[#9a9390]' }}">ud</span>
-            
-            @if($stockBajoItem)
-                <span class="text-xs text-red-400 block font-normal">Mín: {{ number_format($item->stock_minimo, 0) }}</span>
+            <td class="px-5 py-3 text-slate-600 border-r border-slate-100">
+                {{ $negocio->moneda }} {{ number_format($item->precio_venta, 0, ',', '.') }}
+            </td>
+
+            <td class="px-5 py-3 border-r border-slate-100">
+                <span class="font-bold {{ $margen >= 30 ? 'text-emerald-600' : ($margen >= 10 ? 'text-amber-600' : 'text-red-500') }}">
+                    {{ $margen }}%
+                </span>
+            </td>
+
+            <td class="px-5 py-3">
+                <div class="flex gap-1.5">
+                    <a href="{{ route('inventario.kardex', $item->id) }}"
+                        class="bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-200 transition"
+                        title="Kardex">
+                        <i class="bi bi-list-ul"></i>
+                    </a>
+                    <a href="{{ route('inventario.edit', $item->id) }}"
+                        class="bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-200 transition"
+                        title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button 
+                        onclick="abrirAjuste({{ $item->id }}, '{{ $item->nombre }}', {{ $item->stock ?? 0 }})"
+                        class="bg-amber-50 text-amber-700 px-2.5 py-1.5 rounded-lg text-xs hover:bg-amber-100 transition border border-amber-100"
+                        title="Ajuste">
+                        <i class="bi bi-sliders"></i>
+                    </button>
+                    <form action="{{ route('inventario.destroy', $item->id) }}" method="POST"
+                        onsubmit="return confirm('¿Desactivar este ítem?')">
+                        @csrf @method('DELETE')
+                        <button type="submit"
+                            class="bg-rose-50 text-rose-600 px-2.5 py-1.5 rounded-lg text-xs hover:bg-rose-100 transition border border-rose-100"
+                            title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        @endforeach
+        </tbody>
+            </table>
             @endif
-        @else
-            <span class="text-[#b0a8a0] text-xs">Sin stock</span>
-        @endif
-    </td>
-
-    <td class="px-5 py-3 text-[#2a2522]">
-        {{ $negocio->moneda }} {{ number_format($item->costo_compra, 2, ',', '.') }}
-    </td>
-
-    <td class="px-5 py-3 text-[#2a2522]">
-        {{ $negocio->moneda }} {{ number_format($item->precio_venta, 2, ',', '.') }}
-    </td>
-
-    <td class="px-5 py-3">
-        <span class="font-medium {{ $margen >= 30 ? 'text-[#4a7c59]' : ($margen >= 10 ? 'text-[#856404]' : 'text-red-400') }}">
-            {{ $margen }}%
-        </span>
-    </td>
-
-    <td class="px-5 py-3">
-        <div class="flex gap-1.5">
-
-            {{-- ✅ SOLO inventario normal tiene kardex --}}
-                <a href="{{ route('inventario.kardex', $item->id) }}"
-                    class="bg-[#f0ede8] text-[#5a5250] px-2.5 py-1.5 rounded-lg text-xs hover:bg-[#e8e4e0] transition"
-                    title="Kardex">
-                    <i class="bi bi-list-ul"></i>
-                </a>
-                <a href="{{ route('inventario.edit', $item->id) }}"
-                    class="btn btn-warning">
-                    <i class="bi bi-pencil-square bg-[#f0ede8] text-[#5a5250] px-2.5 py-1.5 rounded-lg text-xs hover:bg-[#e8e4e0]"></i>
-                </a>
-
-            {{-- ✅ SOLO inventario normal tiene ajuste de stock --}}
-                <button 
-                    onclick="abrirAjuste({{ $item->id }}, '{{ $item->nombre }}', {{ $item->stock ?? 0 }})"
-                    class="bg-[#fff3cd] text-[#856404] px-2.5 py-1.5 rounded-lg text-xs hover:bg-[#ffe69c] transition"
-                    title="Ajuste de stock">
-                    <i class="bi bi-sliders"></i>
-                </button>
-
-            {{-- 🗑 ELIMINAR (todos) --}}
-            <form action="{{ route('inventario.destroy', $item->id) }}" method="POST"
-                onsubmit="return confirm('¿Desactivar este ítem?')">
-                @csrf @method('DELETE')
-                <button type="submit"
-                    class="bg-[#f2d8d8] text-[#8a3a3a] px-2.5 py-1.5 rounded-lg text-xs hover:bg-[#e0b0b0] transition"
-                    title="Desactivar">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </form>
-
         </div>
-    </td>
-</tr>
-@endforeach
-</tbody>
-    </table>
-    @endif
+    </div>
 </div>
 
 {{-- MODAL AJUSTE DE STOCK --}}
 <div id="modalAjuste"
-    class="fixed inset-0 bg-gray-900/20 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+    class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden items-center justify-center z-50">
+    <div class="glass-card w-full max-w-md mx-4 p-8">
         <div class="flex justify-between items-center mb-5">
             <div>
                 <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Inventario</p>
@@ -240,17 +232,17 @@
                     placeholder="0">
             </div>
             <div class="mb-6">
-                <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Fecha</label>
+                <label class="premium-label">Fecha</label>
                 <input type="date" name="fecha" required value="{{ date('Y-m-d') }}"
-                    class="w-full border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]">
+                    class="premium-input">
             </div>
-            <div class="flex gap-3 justify-end">
+            <div class="flex gap-3 justify-end pt-4">
                 <button type="button" onclick="cerrarAjuste()"
-                    class="px-5 py-2.5 bg-[#f5f3ef] text-[#9a9390] text-sm rounded-xl hover:bg-[#ede8e2] transition">
+                    class="premium-button-slate flex-1">
                     Cancelar
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-[#2d4a35] text-white text-sm font-medium rounded-xl hover:bg-[#3d5e45] transition">
+                    class="premium-button-emerald flex-1">
                     Guardar ajuste
                 </button>
             </div>

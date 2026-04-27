@@ -1,49 +1,23 @@
 @extends('layouts.app')
 @section('title', 'Editar Configuración')
 
+@push('styles')
+    @vite(['resources/css/inventario.css', 'resources/css/configuracion.css'])
+@endpush
+
 @section('content')
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-<style>
-  body, * { font-family: 'DM Sans', sans-serif; }
-  .serif { font-family: 'Playfair Display', serif; }
-  .input-field {
-    width: 100%; padding: 10px 16px;
-    background: #faf9f7; border: 1.5px solid #e8e4e0;
-    border-radius: 12px; font-size: 0.875rem; color: #2a2522;
-    transition: border-color .2s, box-shadow .2s; outline: none;
-  }
-  .input-field:focus { border-color: #a8c8a0; box-shadow: 0 0 0 3px rgba(168,200,160,0.15); }
-  .label {
-    display: block; font-size: 0.65rem; font-weight: 600;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: #9a9390; margin-bottom: 6px;
-  }
-  .section-header {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 16px; padding-bottom: 10px;
-    border-bottom: 1px solid #f0ede8;
-  }
-  .section-dot { width: 6px; height: 6px; background: #4a7c59; border-radius: 50%; flex-shrink: 0; }
-  .btn-primary {
-    flex: 1; padding: 11px; background: #2d4a35;
-    color: white; font-size: 0.875rem; font-weight: 500;
-    border-radius: 12px; border: none; cursor: pointer;
-    transition: background .2s, transform .15s;
-  }
-  .btn-primary:hover { background: #3d5e45; transform: translateY(-1px); }
-</style>
 
 {{-- Header --}}
 <div class="flex items-center justify-between mb-6 max-w-5xl mx-auto">
     <div>
-        <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Ajustes</p>
-        <h1 class="serif text-[#2d4a35] text-3xl font-semibold">Configuración</h1>
+        <p class="text-slate-500 text-[0.65rem] font-bold tracking-widest uppercase mb-1 drop-shadow-sm">Ajustes</p>
+        <h1 class="page-title">Configuración</h1>
     </div>
     <a href="/dashboard"
-        class="flex items-center gap-2 bg-[#f0ede8] text-[#5a5250] text-sm px-4 py-2.5
-               rounded-xl hover:bg-[#e8e4e0] transition-all duration-200">
+        class="premium-button-slate py-2.5">
         <i class="bi bi-arrow-left text-xs"></i> Dashboard
     </a>
 </div>
@@ -60,7 +34,7 @@
 @endif
 
 {{-- Card configuración --}}
-<div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-[#ede8e2] overflow-hidden mb-6">
+<div class="max-w-5xl mx-auto glass-card overflow-hidden mb-6">
 
     {{-- Header verde --}}
     <div class="bg-[#2d4a35] px-8 py-5 flex items-center gap-4">
@@ -81,7 +55,7 @@
         @method('PUT')
 
         {{-- GRID 2 COLUMNAS --}}
-        <div class="grid grid-cols-2 divide-x divide-[#f0ede8]">
+        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200/60">
 
             {{-- COLUMNA IZQUIERDA: Datos del negocio --}}
             <div class="p-8 space-y-5">
@@ -91,41 +65,41 @@
                 </div>
 
                 <div>
-                    <label class="label">Nombre del negocio</label>
+                    <label class="premium-label">Nombre del negocio</label>
                     <input type="text" name="nombre_comercial"
                         value="{{ old('nombre_comercial', $negocio->nombre_comercial) }}"
-                        class="input-field">
+                        class="premium-input">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="label">País</label>
+                        <label class="premium-label">País</label>
                         <input type="text" name="pais"
                             value="{{ old('pais', $negocio->pais) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                     <div>
-                        <label class="label">Moneda</label>
+                        <label class="premium-label">Moneda</label>
                         <input type="text" name="moneda"
                             value="{{ old('moneda', $negocio->moneda) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                 </div>
 
                 <div>
-                    <label class="label">Dirección</label>
+                    <label class="premium-label">Dirección</label>
                     <input type="text" name="direccion"
                         value="{{ old('direccion', $negocio->direccion) }}"
                         placeholder="Calle 10 # 5-20, Bogotá"
-                        class="input-field">
+                        class="premium-input">
                 </div>
 
                 <div>
-                    <label class="label">Teléfono</label>
+                    <label class="premium-label">Teléfono</label>
                     <input type="text" name="telefono"
                         value="{{ old('telefono', $negocio->telefono) }}"
                         placeholder="+57 300 123 4567"
-                        class="input-field">
+                        class="premium-input">
                 </div>
             </div>
 
@@ -164,25 +138,25 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="label">Días de operación / mes</label>
+                        <label class="premium-label">Días de operación / mes</label>
                         <input type="number" name="dias_operacion"
                             value="{{ old('dias_operacion', $config->dias_operacion) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                     <div>
-                        <label class="label">Sueldo deseado</label>
+                        <label class="premium-label">Sueldo deseado</label>
                         <input type="number" name="sueldo_dueno"
                             value="{{ old('sueldo_dueno', $config->sueldo_dueno) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                 </div>
 
                 @if($negocio->esServicios())
                 <div>
-                    <label class="label">Ingresos proyectados</label>
+                    <label class="premium-label">Ingresos proyectados</label>
                     <input type="number" name="ingresos_proyectados"
                         value="{{ old('ingresos_proyectados', $config->ingresos_proyectados) }}"
-                        class="input-field">
+                        class="premium-input">
                     @error('ingresos_proyectados')
                         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -194,27 +168,26 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="label">Ahorro / reinversión</label>
+                        <label class="premium-label">Ahorro / reinversión</label>
                         <input type="number" name="utilidad_ahorro_reinversion"
                             value="{{ old('utilidad_ahorro_reinversion', $config->utilidad_ahorro_reinversion) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                     <div>
-                        <label class="label">Dinero en caja / banco</label>
+                        <label class="premium-label">Dinero en caja / banco</label>
                         <input type="number" name="dinero_disponible"
                             value="{{ old('dinero_disponible', $config->dinero_disponible) }}"
-                            class="input-field">
+                            class="premium-input">
                     </div>
                 </div>
 
                 {{-- Botones --}}
-                <div class="flex gap-3 pt-4 border-t border-[#f0ede8]">
+                <div class="flex gap-3 pt-4 border-t border-slate-200/60">
                     <a href="/dashboard"
-                        class="flex-1 text-center py-2.5 bg-[#f5f3ef] text-[#9a9390] text-sm
-                               rounded-xl hover:bg-[#ede8e2] transition-all duration-200">
+                        class="flex-1 premium-button-slate">
                         Cancelar
                     </a>
-                    <button type="submit" class="btn-primary">
+                    <button type="submit" class="premium-button-emerald flex-1">
                         <i class="bi bi-check-lg mr-1"></i> Guardar cambios
                     </button>
                 </div>
@@ -225,7 +198,7 @@
 </div>
 
 {{-- Card Gastos Fijos --}}
-<div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-[#ede8e2] overflow-hidden">
+<div class="max-w-5xl mx-auto glass-card overflow-hidden">
 
     <div class="bg-[#2d4a35] px-8 py-5 flex items-center justify-between">
         <div class="flex items-center gap-4">

@@ -352,6 +352,7 @@ class NegocioController extends Controller
         // MOVIMIENTOS
         // ─────────────────────────────────────────────
         $movimientos = $negocio->movimientosCaja()
+            ->withCount(['ventasDetalle', 'comprasDetalle'])
             ->whereMonth('fecha', now()->month)
             ->whereYear('fecha', now()->year)
             ->orderBy('fecha', 'desc')

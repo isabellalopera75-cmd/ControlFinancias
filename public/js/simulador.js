@@ -68,12 +68,15 @@ sueldoSlider.addEventListener('input', calcularSimulador);
 
 // ================= MODAL EDITAR MOVIMIENTO =================
 
-function abrirModal(id, descripcion, monto) {
+function abrirModal(id, descripcion, monto, fecha) {
     const modal = document.getElementById('modalEditar');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.getElementById('editDescripcion').value = descripcion;
     document.getElementById('editMonto').value = monto;
+    if(document.getElementById('editFecha') && fecha) {
+        document.getElementById('editFecha').value = fecha;
+    }
     document.getElementById('formEditar').action = '/movimiento/' + id;
 }
 
@@ -86,7 +89,7 @@ function cerrarModal() {
 document.addEventListener('click', function (e) {
     const boton = e.target.closest('.btn-editar');
     if (boton) {
-        abrirModal(boton.dataset.id, boton.dataset.descripcion, boton.dataset.monto);
+        abrirModal(boton.dataset.id, boton.dataset.descripcion, boton.dataset.monto, boton.dataset.fecha);
     }
 });
 

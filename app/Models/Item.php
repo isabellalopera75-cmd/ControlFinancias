@@ -50,5 +50,35 @@ class Item extends Model
         return $query->where('tiene_stock', true)
                      ->whereColumn('stock', '<=', 'stock_minimo');
     }
-    
+
+    public function recalcularCostoYStock()
+    {
+        $movimientos = $this->movimientosInventario()
+                            ->orderBy('fecha', 'asc')
+                            ->orderBy('id', 'asc')
+                            ->get();
+        
+        $stock = 0;
+        $costoPromedio = 0;
+
+        foreach ($movimientos as $mov) {
+            if ($mov->tipo === 'entrada') {
+                if (($stock + $mov->cantidad) > 0) {
+                    $costoPromedio = (($stock * $costoPromedio) + ($mov->cantidad * $mov->costo_unitario)) / ($stock + $mov->cantidad);
+                } else {
+                    $costoPromedio = $mov->costo_unitario;
+                }
+                $stock += $mov->cantidad;
+            } elseif ($mov->tipo === 'salida') {
+                $stock -= $mov->cantidad;
+            } elseif ($mov->tipo === 'ajuste') {
+                $stock = $mov->cantidad;
+            }
+        }
+
+        $this->update([
+            'stock' => $stock,
+            'costo_compra' => round($costoPromedio, 4),
+        ]);
+    }
 }

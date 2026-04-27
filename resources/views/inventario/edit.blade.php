@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Editar Ítem')
 
+@push('styles')
+    @vite(['resources/css/inventario.css'])
+@endpush
+
 @section('content')
 
 <div class="flex items-center justify-between mb-8 max-w-2xl mx-auto">
@@ -10,11 +14,11 @@
     </div>
     <div class="flex gap-3">
         <a href="{{ route('inventario.kardex', $item->id) }}"
-            class="flex items-center gap-2 bg-[#f0ede8] text-[#5a5250] text-sm px-4 py-2.5 rounded-xl hover:bg-[#e8e4e0] transition">
+            class="premium-button-slate py-2.5">
             <i class="bi bi-list-ul"></i> Kardex
         </a>
         <a href="{{ route('inventario.index') }}"
-            class="flex items-center gap-2 bg-[#f0ede8] text-[#5a5250] text-sm px-4 py-2.5 rounded-xl hover:bg-[#e8e4e0] transition">
+            class="premium-button-slate py-2.5">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
@@ -30,7 +34,7 @@
 </div>
 @endif
 
-<div class="bg-white rounded-2xl shadow-sm border border-[#ede8e2] p-8 max-w-2xl mx-auto">
+<div class="glass-card p-8 max-w-2xl mx-auto">
 
     {{-- Badge informativo --}}
     <div class="mb-6 flex items-center gap-2">
@@ -46,31 +50,31 @@
 
         {{-- Nombre --}}
         <div class="mb-5">
-            <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">Nombre del Producto *</label>
+            <label class="premium-label">Nombre del Producto *</label>
             <input type="text" name="nombre" value="{{ old('nombre', $item->nombre) }}" required
-                class="w-full px-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]">
+                class="premium-input">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             {{-- Costo de compra --}}
             <div>
-                <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">Costo de compra *</label>
+                <label class="premium-label">Costo de compra *</label>
                 <div class="relative">
-                    <span class="absolute left-4 top-2.5 text-[#b0a8a0] text-sm">$</span>
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                     <input type="number" name="costo_compra" id="costoInput"
                         value="{{ old('costo_compra', $item->costo_compra) }}" step="0.01" min="0" required
-                        class="w-full pl-8 pr-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]">
+                        class="premium-input pl-8">
                 </div>
             </div>
 
             {{-- Precio de venta --}}
             <div>
-                <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">Precio de venta *</label>
+                <label class="premium-label">Precio de venta *</label>
                 <div class="relative">
-                    <span class="absolute left-4 top-2.5 text-[#b0a8a0] text-sm">$</span>
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                     <input type="number" name="precio_venta" id="precioInput"
                         value="{{ old('precio_venta', $item->precio_venta) }}" step="0.01" min="0" required
-                        class="w-full pl-8 pr-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]">
+                        class="premium-input pl-8">
                 </div>
             </div>
         </div>
@@ -83,9 +87,9 @@
 
         {{-- Stock mínimo --}}
         <div class="mb-5">
-            <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">Alerta de Stock mínimo</label>
+            <label class="premium-label">Alerta de Stock mínimo</label>
             <input type="number" name="stock_minimo" value="{{ old('stock_minimo', $item->stock_minimo) }}" step="0.01" min="0"
-                class="w-full px-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]">
+                class="premium-input">
             <p class="text-[#b0a8a0] text-[0.65rem] mt-1.5">Te avisaremos cuando el inventario baje de esta cantidad.</p>
         </div>
 
@@ -105,13 +109,13 @@
         </div>
 
         {{-- Botones de acción --}}
-        <div class="flex gap-3 pt-6 border-t border-[#f0ede8]">
+        <div class="flex gap-3 pt-6 border-t border-slate-200/60">
             <a href="{{ route('inventario.index') }}"
-                class="flex-1 text-center py-3 bg-[#f5f3ef] text-[#9a9390] text-sm rounded-xl hover:bg-[#ede8e2] transition font-medium">
+                class="flex-1 premium-button-slate">
                 Cancelar
             </a>
             <button type="submit"
-                class="flex-1 py-3 bg-[#2d4a35] text-white text-sm font-semibold rounded-xl hover:bg-[#3d5e45] shadow-sm transition">
+                class="flex-1 premium-button-emerald">
                 <i class="bi bi-check-lg mr-1"></i> Actualizar Producto
             </button>
         </div>

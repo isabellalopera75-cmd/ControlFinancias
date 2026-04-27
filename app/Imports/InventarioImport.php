@@ -46,19 +46,47 @@ class InventarioImport implements ToCollection, WithHeadingRow
         foreach ($rows as $index => $row) {
             $fila = $index + 2; // +2 porque row 1 es header
 
-            $nombre      = trim($row['nombre'] ?? '');
-            $costoCompra = floatval($row['costo_compra'] ?? 0);
-            $precioVenta = floatval($row['precio_venta'] ?? 0);
+            $nombre = trim($row['nombre'] ?? '');
+            $rawCosto = $row['costo_compra'] ?? '';
+            $rawPrecio = $row['precio_venta'] ?? '';
+            $rawStock = $row['stock_inicial'] ?? '0';
+            $rawMinimo = $row['stock_minimo'] ?? '0';
 
-            // Validar campos obligatorios
-            if (empty($nombre) || $costoCompra <= 0 || $precioVenta <= 0) {
+            if (empty($nombre)) {
                 $this->errores++;
-                $this->mensajesError[] = "Fila {$fila}: nombre, costo_compra y precio_venta son obligatorios.";
+                $this->mensajesError[] = "Fila {$fila}: el nombre es obligatorio.";
                 continue;
             }
 
-            $stockInicial = floatval($row['stock_inicial'] ?? 0);
-            $stockMinimo  = floatval($row['stock_minimo'] ?? 0);
+            if (!is_numeric($rawCosto) || !is_numeric($rawPrecio)) {
+                $this->errores++;
+                $this->mensajesError[] = "Fila {$fila}: el costo de compra y precio de venta deben ser numéricos.";
+                continue;
+            }
+
+            $costoCompra = floatval($rawCosto);
+            $precioVenta = floatval($rawPrecio);
+
+            if ($costoCompra <= 0 || $precioVenta <= 0) {
+                $this->errores++;
+                $this->mensajesError[] = "Fila {$fila}: el costo y el precio deben ser mayores a 0.";
+                continue;
+            }
+
+            if ($costoCompra > $precioVenta) {
+                $this->errores++;
+                $this->mensajesError[] = "Fila {$fila}: el costo ({$costoCompra}) no puede ser mayor al precio de venta ({$precioVenta}).";
+                continue;
+            }
+
+            if (!is_numeric($rawStock) || !is_numeric($rawMinimo)) {
+                $this->errores++;
+                $this->mensajesError[] = "Fila {$fila}: el stock inicial y stock mínimo deben ser numéricos.";
+                continue;
+            }
+
+            $stockInicial = floatval($rawStock);
+            $stockMinimo  = floatval($rawMinimo);
             $categoria    = trim($row['categoria'] ?? '');
 
             $item = Item::create([

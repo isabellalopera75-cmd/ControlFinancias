@@ -5,35 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') - ImpulWeb</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/layout.css', 'resources/js/app.js'])
+    @stack('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .serif { font-family: 'Playfair Display', serif; }
-    </style>
 </head>
 <body class="bg-gradient-to-br from-[#fbfcfc] to-[#f0f4f8] min-h-screen selection:bg-[#4a7c59] selection:text-white text-slate-800">
 
     @if(isset($negocio))
-    <nav class="bg-white/60 backdrop-blur-xl border-b border-white/40 shadow-sm px-8 py-3 flex justify-between items-center sticky top-0 z-50">
+    <nav class="bg-white/60 backdrop-blur-xl border-b border-white/40 shadow-sm px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0 sticky top-0 z-50">
 
         {{-- Logo + nombre --}}
         <div class="flex items-center gap-2.5 hover:opacity-80 transition cursor-default">
             <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-[#4a7c59] to-[#2d4a35] shadow-sm"></span>
-            <h1 class="text-[#2d4a35] text-lg font-medium tracking-tight leading-none">
+            <h1 class="text-[#2d4a35] text-lg font-medium tracking-tight leading-none text-center md:text-left">
                 {{ $negocio->nombre_comercial }}
             </h1>
         </div>
 
         {{-- Acciones --}}
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3">
 
             {{-- Botón Recomendaciones --}}
             @if(Route::currentRouteName() === 'dashboard')
             <button onclick="abrirRecomendaciones()"
-                class="relative flex items-center gap-2 text-emerald-700 text-xs font-medium tracking-wide bg-emerald-50/50 border border-emerald-200/60 px-4 py-2 rounded-xl hover:bg-emerald-100 hover:text-emerald-800 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                class="nav-btn-emerald relative">
                 <i class="bi bi-lightbulb text-sm"></i>
                 Recomendaciones
                 @if(isset($hayRecomendacionesNuevas) && $hayRecomendacionesNuevas)
@@ -44,25 +41,25 @@
 
             @if($negocio->esReventa())
             <a href="{{ route('facturas.historial') }}"
-                class="flex items-center gap-2 text-slate-600 text-xs font-medium tracking-wide bg-white/50 border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-100 hover:text-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                class="nav-btn-slate">
                 <i class="bi bi-receipt text-sm"></i>
                 Facturas
             </a>
             @endif
 
             <a href="/configuracion/editar"
-            class="flex items-center gap-2 text-slate-600 text-xs font-medium tracking-wide bg-white/50 border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-100 hover:text-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+            class="nav-btn-slate">
                 <i class="bi bi-gear text-sm"></i>
                 Configuración
             </a>
         <a href="{{ route('dashboard') }}" 
-           class="flex items-center gap-2 bg-white/60 text-slate-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-slate-100/80 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border border-slate-200/50">
-            <i class="bi bi-grid-1x2"></i> Dashboard
+           class="nav-btn-slate">
+            <i class="bi bi-grid-1x2"></i> <span class="hidden sm:inline">Dashboard</span>
         </a>
             <form action="/logout" method="POST">
                 @csrf
                 <button type="submit"
-                        class="flex items-center gap-2 bg-gradient-to-r from-red-50 to-rose-50 border border-red-100 text-red-600 text-xs font-medium tracking-wide px-4 py-2 rounded-xl hover:bg-red-100 hover:text-red-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                        class="nav-btn-rose">
                     <i class="bi bi-box-arrow-right text-sm"></i>
                     Cerrar sesión
                 </button>
@@ -72,7 +69,7 @@
     </nav>
     @endif
 
-    <main class="max-w-6xl mx-auto px-6 py-8">
+    <main class="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-12 xl:px-16 py-8">
 
         @if(session('success'))
             <div class="flex items-center gap-3 bg-[#e8f5e2] text-[#2d5a35] border border-[#c0ddb8] px-4 py-3 rounded-xl mb-6 text-sm">

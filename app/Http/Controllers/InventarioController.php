@@ -90,12 +90,14 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
 
         $request->validate([
             'nombre'               => 'required|string|max:255',
-            'precio_venta'         => 'required|numeric|min:0',
-            'costo_unidad'         => 'required|numeric|min:0',
+            'precio_venta'         => 'required|numeric|min:0.01',
+            'costo_unidad'         => 'required|numeric|min:0.01|lte:precio_venta',
             'unidad_compra'        => 'required|in:unidad,caja',
             'unidades_por_paquete' => 'nullable|integer|min:1',
             'stock_inicial'        => 'nullable|numeric|min:0',
             'stock_minimo'         => 'nullable|numeric|min:0',
+        ], [
+            'costo_unidad.lte' => 'El costo no puede ser mayor al precio de venta.',
         ]);
 
         $existe = Item::where('negocio_id', $negocio->id)
@@ -162,9 +164,11 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
 
         $request->validate([
             'nombre'       => 'required|string|max:255',
-            'costo_compra' => 'required|numeric|min:0',
-            'precio_venta' => 'required|numeric|min:0',
+            'precio_venta' => 'required|numeric|min:0.01',
+            'costo_compra' => 'required|numeric|min:0.01|lte:precio_venta',
             'stock_minimo' => 'required|numeric|min:0',
+        ], [
+            'costo_compra.lte' => 'El costo no puede ser mayor al precio de venta.',
         ]);
 
         $existe = Item::where('negocio_id', Auth::user()->negocio->id)
@@ -209,23 +213,21 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
             'motivo'   => 'nullable|string|max:255',
         ]);
 
-        MovimientoInventario::create([
-            'negocio_id'     => Auth::user()->negocio->id,
-            'item_id'        => $item->id,
-            'tipo'           => $request->tipo,
-            'cantidad'       => $request->cantidad,
-            'costo_unitario' => $item->costo_compra,
-            'referencia_id'  => null,
-            'fecha'          => now()->toDateString(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $item) {
+            $itemBloqueado = Item::where('id', $item->id)->lockForUpdate()->firstOrFail();
 
-        if ($request->tipo === 'entrada') {
-            $item->increment('stock', $request->cantidad);
-        } elseif ($request->tipo === 'salida') {
-            $item->decrement('stock', $request->cantidad);
-        } else {
-            $item->update(['stock' => $request->cantidad]);
-        }
+            MovimientoInventario::create([
+                'negocio_id'     => $itemBloqueado->negocio_id,
+                'item_id'        => $itemBloqueado->id,
+                'tipo'           => $request->tipo,
+                'cantidad'       => $request->cantidad,
+                'costo_unitario' => $itemBloqueado->costo_compra,
+                'referencia_id'  => null,
+                'fecha'          => now()->toDateString(),
+            ]);
+
+            $itemBloqueado->recalcularCostoYStock();
+        });
 
         return back()->with('success', 'Ajuste realizado correctamente.');
     }
@@ -248,12 +250,12 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
         $item = Item::findOrFail($id);
         $this->autorizarItem($item);
 
-        $entradas = $item->movimientosInventario()->where('tipo', 'entrada')->sum('cantidad');
-        $salidas  = $item->movimientosInventario()->where('tipo', 'salida')->sum('cantidad');
+        \Illuminate\Support\Facades\DB::transaction(function () use ($item) {
+            $itemBloqueado = Item::where('id', $item->id)->lockForUpdate()->firstOrFail();
+            $itemBloqueado->recalcularCostoYStock();
+        });
 
-        $item->update(['stock' => $entradas - $salidas]);
-
-        return back()->with('success', 'Stock recalculado desde el historial.');
+        return back()->with('success', 'Stock y costo recalculados desde el historial.');
     }
 
     private function autorizarItem(Item $item): void

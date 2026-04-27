@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Factura #' . $numero)
+@push('styles')
+    @vite(['resources/css/facturas.css'])
+@endpush
 
+@section('title', 'Factura #' . $numero)
 @section('content')
 
 <div class="max-w-3xl mx-auto">
@@ -186,11 +189,5 @@
     </div>
 </div>
 
-<style>
-@media print {
-    nav, header, .print\:hidden { display: none !important; }
-    body { background: white; }
-}
-</style>
 
 @endsection

@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Kardex - ' . $item->nombre)
 
+@push('styles')
+    @vite(['resources/css/inventario.css'])
+@endpush
+
 @section('content')
 
 <div class="flex items-center justify-between mb-8">

@@ -65,6 +65,7 @@ class MovimientoController extends Controller
             foreach ($request->items as $linea) {
                 $item        = Item::where('id', $linea['item_id'])
                                    ->where('negocio_id', $negocio->id)
+                                   ->lockForUpdate()
                                    ->firstOrFail();
                 $precio      = $linea['precio_unitario'] ?? $item->precio_venta;
                 $montoTotal += $precio * $linea['cantidad'];
@@ -82,6 +83,7 @@ class MovimientoController extends Controller
             foreach ($request->items as $linea) {
                 $item     = Item::where('id', $linea['item_id'])
                                 ->where('negocio_id', $negocio->id)
+                                ->lockForUpdate()
                                 ->firstOrFail();
                 $cantidad = $linea['cantidad'];
                 $precio   = $linea['precio_unitario'] ?? $item->precio_venta;
@@ -173,6 +175,14 @@ class MovimientoController extends Controller
         $movimiento = MovimientoCaja::where('negocio_id', $negocio->id)
                                     ->findOrFail($id);
 
+        if ($movimiento->es_venta && $movimiento->ventasDetalle()->exists()) {
+            return back()->with('error', 'No se puede editar una venta con productos asociados. Debe eliminarla y volver a registrarla.');
+        }
+        
+        if (!$movimiento->es_venta && $movimiento->comprasDetalle()->exists()) {
+            return back()->with('error', 'No se puede editar una compra con productos asociados. Debe eliminarla y volver a registrarla.');
+        }
+
         $request->validate([
             'monto'       => 'required|numeric|min:0.01',
             'descripcion' => 'nullable|string|max:255',
@@ -193,11 +203,32 @@ class MovimientoController extends Controller
     {
         $negocio    = Auth::user()->negocio;
         $movimiento = MovimientoCaja::where('negocio_id', $negocio->id)
+                                    ->with(['ventasDetalle.item', 'comprasDetalle.item'])
                                     ->findOrFail($id);
 
-        $movimiento->delete();
+        DB::transaction(function () use ($movimiento) {
+            $itemIds = [];
+            if ($movimiento->es_venta) {
+                $itemIds = $movimiento->ventasDetalle()->pluck('item_id')->filter()->toArray();
+            } else {
+                $itemIds = $movimiento->comprasDetalle()->pluck('item_id')->filter()->toArray();
+            }
+
+            // Bloquear ítems afectados antes de alterar nada
+            $itemsBloqueados = Item::whereIn('id', $itemIds)->lockForUpdate()->get();
+
+            // Eliminar movimientos de inventario asociados (si no hay cascade)
+            MovimientoInventario::where('referencia_id', $movimiento->id)->delete();
+
+            $movimiento->delete();
+
+            // Recalcular stock y costo para los items afectados
+            foreach ($itemsBloqueados as $item) {
+                $item->recalcularCostoYStock();
+            }
+        });
 
         return redirect()->route('dashboard')
-                         ->with('success', 'Movimiento eliminado correctamente.');
+                         ->with('success', 'Movimiento eliminado y stock restaurado correctamente.');
     }
 }

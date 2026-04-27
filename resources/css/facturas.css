@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+@reference "./theme.css";
+
+/* Módulo Facturas */
+
+@media print {
+  nav, header, .print\:hidden, .no-print { display: none !important; }
+  body { background: white; }
+}

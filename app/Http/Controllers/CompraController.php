@@ -74,6 +74,7 @@ class CompraController extends Controller
             foreach ($request->items as $compra) {
                 $item = Item::where('id', $compra['item_id'])
                             ->where('negocio_id', $negocio->id)
+                            ->lockForUpdate()
                             ->firstOrFail();
 
                 $cantidad      = $compra['cantidad'];

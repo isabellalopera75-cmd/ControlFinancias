@@ -1,15 +1,16 @@
 @extends('layouts.app')
 @section('title', 'Entradas de Mercancía')
 
+@push('styles')
+    @vite(['resources/css/inventario.css'])
+@endpush
+
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-    .serif { font-family: 'Playfair Display', serif; }
-    body, * { font-family: 'DM Sans', sans-serif; }
-</style>
+
 
 {{-- HEADER --}}
-<div class="flex items-center justify-between mb-6">
+<div class="max-w-6xl mx-auto flex items-center justify-between mb-6 px-4">
     <div>
         <p class="text-[#9a9390] text-xs tracking-widests uppercase mb-1">Módulo</p>
         <h1 class="text-[#2a2522] text-3xl leading-tight">
@@ -17,50 +18,53 @@
         </h1>
     </div>
     <button onclick="abrirModalEntrada()"
-        class="flex items-center gap-2 bg-[#2d4a35] text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[#3d5e45] transition">
+        class="premium-button-emerald">
         <i class="bi bi-plus-lg"></i> Nueva entrada
     </button>
 </div>
 
 {{-- PESTAÑAS --}}
-<div class="flex gap-1 mb-6 bg-[#f0ede8] p-1 rounded-xl w-fit">
-    <a href="{{ route('inventario.index') }}"
-        class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-               text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
-        <i class="bi bi-box-seam mr-1.5"></i> Productos
-    </a>
-    <a href="{{ route('inventario.entradas') }}"
-        class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-               bg-white text-[#2d4a35] shadow-sm">
-        <i class="bi bi-truck mr-1.5"></i> Entradas
-    </a>
+<div class="max-w-6xl mx-auto mb-6 px-4">
+    <div class="flex gap-1 bg-[#f0ede8] p-1 rounded-xl w-fit">
+        <a href="{{ route('inventario.index') }}"
+            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                   text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
+            <i class="bi bi-box-seam mr-1.5"></i> Productos
+        </a>
+        <a href="{{ route('inventario.entradas') }}"
+            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                   bg-white text-[#2d4a35] shadow-sm">
+            <i class="bi bi-truck mr-1.5"></i> Entradas
+        </a>
+    </div>
 </div>
 
 {{-- HISTORIAL DE COMPRAS --}}
-<div class="bg-white rounded-2xl shadow-sm border border-[#ede8e2] overflow-hidden">
-
-    @if($compras->isEmpty())
-        <div class="p-12 text-center">
-            <div class="w-14 h-14 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-truck text-[#b0a8a0] text-2xl"></i>
-            </div>
-            <p class="text-[#9a9390] text-sm">No hay entradas de mercancía registradas.</p>
-            <button onclick="abrirModalEntrada()"
-                class="inline-block mt-4 bg-[#2d4a35] text-white text-sm px-5 py-2.5 rounded-xl hover:bg-[#3d5e45] transition">
-                + Registrar primera entrada
-            </button>
-        </div>
-    @else
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-[#d6e8d0]">
-                    <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Fecha</th>
-                    <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Proveedor / Factura</th>
-                    <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Productos</th>
-                    <th class="px-5 py-3 text-right text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Total</th>
-                    <th class="px-5 py-3 text-center text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Detalle</th>
-                </tr>
-            </thead>
+<div class="max-w-6xl mx-auto px-4 mb-10">
+    <div class="glass-card overflow-hidden">
+        <div class="max-h-[600px] overflow-y-auto custom-scrollbar">
+            @if($compras->isEmpty())
+                <div class="p-12 text-center">
+                    <div class="w-14 h-14 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="bi bi-truck text-[#b0a8a0] text-2xl"></i>
+                    </div>
+                    <p class="text-[#9a9390] text-sm">No hay entradas de mercancía registradas.</p>
+                    <button onclick="abrirModalEntrada()"
+                        class="inline-block mt-4 premium-button-emerald mx-auto">
+                        + Registrar primera entrada
+                    </button>
+                </div>
+            @else
+                <table class="w-full text-sm">
+                    <thead class="sticky top-0 z-10">
+                        <tr class="text-white">
+                            <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold rounded-tl-xl">Fecha</th>
+                            <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Proveedor / Factura</th>
+                            <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Productos</th>
+                            <th class="bg-[#2d4a35] px-5 py-4 text-right text-xs tracking-widest uppercase font-semibold">Total</th>
+                            <th class="bg-[#2d4a35] px-5 py-4 text-center text-xs tracking-widest uppercase font-semibold rounded-tr-xl">Detalle</th>
+                        </tr>
+                    </thead>
             <tbody>
                 @foreach($compras as $compra)
                 <tr class="border-b border-[#f0ede8] hover:bg-[#faf8f5] transition"
@@ -159,9 +163,9 @@
 
 {{-- ══════════════ MODAL NUEVA ENTRADA ══════════════ --}}
 <div id="modalEntrada"
-     class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm hidden items-center justify-center z-50">
+     class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden items-center justify-center z-50">
 
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[90vh] overflow-y-auto">
+    <div class="glass-card w-full max-w-2xl mx-4 p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
 
         {{-- Header modal --}}
         <div class="flex items-start justify-between mb-5">
@@ -181,25 +185,21 @@
 
             {{-- Proveedor / Referencia --}}
             <div class="mb-4">
-                <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">
+                <label class="premium-label">
                     Proveedor o N° de Factura
                 </label>
                 <input type="text" name="descripcion"
                        placeholder="Ej: Proveedor ABC — Factura #1234"
-                       class="w-full px-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl
-                              text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]
-                              focus:ring-2 focus:ring-[#a8c8a0]/20 transition-all duration-200">
+                       class="premium-input">
             </div>
 
             {{-- Fecha --}}
             <div class="mb-5">
-                <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-1.5">
+                <label class="premium-label">
                     Fecha de entrada
                 </label>
                 <input type="date" name="fecha" required value="{{ date('Y-m-d') }}"
-                       class="w-full px-4 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl
-                              text-[#2a2522] text-sm focus:outline-none focus:border-[#a8c8a0]
-                              focus:ring-2 focus:ring-[#a8c8a0]/20 transition-all duration-200">
+                       class="premium-input">
             </div>
 
             {{-- Líneas de productos --}}
@@ -227,14 +227,11 @@
             {{-- Botones --}}
             <div class="flex gap-3">
                 <button type="submit"
-                        class="flex-1 bg-[#2d4a35] text-white py-2.5 rounded-xl text-sm
-                               font-medium hover:bg-[#3d5e45] transition-all duration-200
-                               flex items-center justify-center gap-2">
+                        class="premium-button-emerald flex-1">
                     <i class="bi bi-check-lg"></i> Registrar entrada
                 </button>
                 <button type="button" onclick="cerrarModalEntrada()"
-                        class="flex-1 border border-[#e8e4e0] text-[#8a8280] py-2.5 rounded-xl
-                               text-sm font-medium hover:bg-[#f5f3ef] transition-all duration-200">
+                        class="premium-button-slate flex-1">
                     Cancelar
                 </button>
             </div>

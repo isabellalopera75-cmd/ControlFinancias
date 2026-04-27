@@ -5,68 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ImpulWeb — Iniciar sesión</title>
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/css/auth.css'])
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'DM Sans', sans-serif; margin:0; padding:0; overflow: hidden; background-color: #f8fafc; }
-        .serif { font-family: 'Fraunces', serif; }
 
-        /* Mouse Follower Glow */
-        #glow {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            /* Se actualiza via js */
-        }
-
-        /* Animated Grid Background */
-        .bg-grid {
-            position: absolute;
-            inset: 0;
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(16,185,129,0.06) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(16,185,129,0.06) 1px, transparent 1px);
-            z-index: 0;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
-            -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0));
-        }
-
-        /* Glassmorphism Panel on Left */
-        .glass-panel {
-            background: rgba(241, 245, 249, 0.5); /* slate-100 */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-right: 1px solid rgba(255, 255, 255, 0.4);
-            z-index: 10;
-        }
-
-        /* Floating elements */
-        .float-fast { animation: float 4.5s ease-in-out infinite; }
-        .float-slow { animation: float 7s ease-in-out infinite reverse; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(1deg); }
-        }
-
-        /* Input styling */
-        input:focus { outline: none; border-color: #34d399 !important; background: white !important; box-shadow: 0 0 0 4px rgba(52,211,153,0.15); }
-        .btn-submit { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(15,23,42,0.3); }
-
-        /* Fade in */
-        .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUpAnim 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .d-1 { animation-delay: 0.15s; }
-        .d-2 { animation-delay: 0.3s; }
-        .d-3 { animation-delay: 0.45s; }
-        @keyframes fadeUpAnim { to { opacity: 1; transform: translateY(0); } }
-
-    </style>
 </head>
 <body class="flex min-h-screen">
 

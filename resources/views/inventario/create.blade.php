@@ -1,77 +1,15 @@
 @extends('layouts.app')
 @section('title', 'Nuevo Producto')
 
+@push('styles')
+    @vite(['resources/css/inventario.css'])
+@endpush
+
 @section('content')
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-<style>
-  body, * { font-family: 'DM Sans', sans-serif; }
-  .serif { font-family: 'Playfair Display', serif; }
 
-  .input-field {
-    width: 100%; padding: 10px 16px;
-    background: #faf9f7; border: 1.5px solid #e8e4e0;
-    border-radius: 12px; font-size: 0.875rem; color: #2a2522;
-    transition: border-color .2s, box-shadow .2s; outline: none;
-  }
-  .input-field:focus { border-color: #a8c8a0; box-shadow: 0 0 0 3px rgba(168,200,160,0.15); }
-  .input-field-icon { padding-left: 28px; }
-
-  .label {
-    display: block; font-size: 0.65rem; font-weight: 600;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: #9a9390; margin-bottom: 6px;
-  }
-  .section-header {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 16px; padding-bottom: 10px;
-    border-bottom: 1px solid #f0ede8;
-  }
-  .step-badge {
-    width: 22px; height: 22px; background: #2d4a35;
-    border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; font-size: 0.65rem;
-    font-weight: 700; color: white; flex-shrink: 0;
-  }
-  .pres-card {
-    border: 2px solid #e8e4e0; border-radius: 14px;
-    padding: 14px 10px; cursor: pointer;
-    transition: all .2s; text-align: center;
-  }
-  .pres-card:hover { border-color: #a8c8a0; background: #faf9f7; }
-  .pres-card.active { border-color: #2d4a35; background: #f0f7f2; }
-  .pres-card.active .pres-icon { color: #2d4a35; }
-  .pres-card.active .pres-label { color: #2d4a35; }
-  .pres-icon { font-size: 1.3rem; color: #9a9390; margin-bottom: 4px; transition: color .2s; }
-  .pres-label { font-size: 0.7rem; font-weight: 700; color: #5a5250; letter-spacing: 0.04em; transition: color .2s; }
-  .pres-sub { font-size: 0.6rem; color: #b0a8a0; margin-top: 2px; line-height: 1.3; }
-
-  .info-box {
-    background: #f0f7f2; border: 1px solid #c8e0cc;
-    border-radius: 12px; padding: 12px 16px;
-    display: flex; align-items: flex-start; gap: 10px;
-  }
-  .info-box-icon {
-    width: 28px; height: 28px; background: #2d4a35;
-    border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; flex-shrink: 0;
-  }
-  .btn-submit {
-    flex: 1; padding: 11px; background: #2d4a35;
-    color: white; font-size: 0.875rem; font-weight: 500;
-    border-radius: 12px; border: none; cursor: pointer;
-    transition: background .2s, transform .15s;
-  }
-  .btn-submit:hover { background: #3d5e45; transform: translateY(-1px); }
-  .fade-in { animation: fadeIn .25s ease; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
-
-  .divider-v {
-    width: 1px; background: #f0ede8;
-    align-self: stretch; margin: 0 8px;
-  }
-</style>
 
 {{-- Header --}}
 <div class="flex items-center justify-between mb-6 max-w-5xl mx-auto">
@@ -80,13 +18,12 @@
         <h1 class="serif text-[#2d4a35] text-3xl font-semibold">Nuevo <em>Producto</em></h1>
     </div>
     <a href="{{ route('inventario.index') }}"
-        class="flex items-center gap-2 bg-[#f0ede8] text-[#5a5250] text-sm px-4 py-2.5
-               rounded-xl hover:bg-[#e8e4e0] transition-all duration-200">
+        class="premium-button-slate py-2.5">
         <i class="bi bi-arrow-left text-xs"></i> Volver
     </a>
 </div>
 
-<div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-[#ede8e2] overflow-hidden">
+<div class="max-w-5xl mx-auto glass-card overflow-hidden">
 
     {{-- Header verde --}}
     <div class="bg-[#2d4a35] px-8 py-5 flex items-center gap-4">
@@ -103,10 +40,10 @@
         @csrf
 
         {{-- GRID 2 COLUMNAS --}}
-        <div style="display:grid; grid-template-columns:1fr 1fr;">
+        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200/60">
 
             {{-- COLUMNA IZQUIERDA --}}
-            <div class="p-8 space-y-7" style="border-right: 1px solid #f0ede8;">
+            <div class="p-8 space-y-7">
 
                 {{-- PASO 1: Info --}}
                 <div>
@@ -116,18 +53,18 @@
                     </div>
                     <div class="space-y-4">
                         <div>
-                            <label class="label">Nombre <span class="text-red-400">*</span></label>
+                            <label class="premium-label">Nombre <span class="text-red-400">*</span></label>
                             <input type="text" name="nombre" value="{{ old('nombre') }}"
-                                placeholder="Ej: Coca-Cola 250ml" class="input-field">
+                                placeholder="Ej: Coca-Cola 250ml" class="premium-input">
                         </div>
                         <div>
-                            <label class="label">
+                            <label class="premium-label">
                                 Categoría
                                 <span class="text-[#b0a8a0] font-normal normal-case text-[0.62rem]">(opcional)</span>
                             </label>
                             <input type="text" name="categoria" value="{{ old('categoria') }}"
                                 list="listaCategorias" placeholder="Ej: Bebidas, Snacks"
-                                class="input-field" autocomplete="off">
+                                class="premium-input" autocomplete="off">
                             <datalist id="listaCategorias">
                                 @foreach($categoriasExistentes as $cat)
                                     <option value="{{ $cat }}">
@@ -159,13 +96,13 @@
 
                     <input type="hidden" name="unidad_compra" id="unidadCompraInput" value="unidad">
 
-                    <div id="fieldUnidadesPaquete" class="hidden fade-in">
-                        <label class="label">
+                    <div id="fieldUnidadesPaquete" class="hidden animate-fade-in">
+                        <label class="premium-label">
                             Unidades por caja <span class="text-red-400">*</span>
                         </label>
                         <input type="number" name="unidades_por_paquete" id="unidadesPorPaquete"
                             value="{{ old('unidades_por_paquete', 1) }}" min="1" step="1"
-                            oninput="actualizarResumen()" class="input-field">
+                            oninput="actualizarResumen()" class="premium-input">
                     </div>
                 </div>
 
@@ -216,20 +153,20 @@
 
                     <div class="grid grid-cols-2 gap-4 mb-3">
                         <div>
-                            <label class="label" id="labelStock">Cantidad disponible hoy</label>
+                            <label class="premium-label" id="labelStock">Cantidad disponible hoy</label>
                             <input type="number" name="stock_inicial" id="stockInicial"
                                 value="{{ old('stock_inicial', 0) }}" step="0.01" min="0"
                                 oninput="actualizarResumen()"
-                                class="input-field" placeholder="0">
+                                class="premium-input" placeholder="0">
                         </div>
                         <div>
-                            <label class="label">
+                            <label class="premium-label">
                                 Stock mínimo
                                 <span class="text-[#b0a8a0] font-normal normal-case text-[0.62rem]">(alerta)</span>
                             </label>
                             <input type="number" name="stock_minimo"
                                 value="{{ old('stock_minimo', 0) }}" step="1" min="0"
-                                class="input-field" placeholder="0">
+                                class="premium-input" placeholder="0">
                         </div>
                     </div>
 
@@ -237,7 +174,7 @@
                         Ingresa las unidades individuales disponibles hoy.
                     </p>
 
-                    <div id="stockPreview" class="hidden mt-3 fade-in bg-[#f0f7f2] border
+                    <div id="stockPreview" class="hidden mt-3 animate-fade-in bg-[#f0f7f2] border
                          border-[#c8e0cc] rounded-xl px-4 py-2.5 flex items-center gap-2">
                         <i class="bi bi-check-circle-fill text-[#4a7c59] text-sm"></i>
                         <p id="stockPreviewTexto" class="text-[#2d4a35] text-xs font-medium"></p>
@@ -253,23 +190,23 @@
 
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="label">Costo por unidad <span class="text-red-400">*</span></label>
+                            <label class="premium-label">Costo por unidad <span class="text-red-400">*</span></label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a9390] text-sm">$</span>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                                 <input type="number" name="costo_unidad" id="costoInput"
                                     value="{{ old('costo_unidad', 0) }}" step="0.01" min="0"
                                     oninput="actualizarMargen()"
-                                    class="input-field input-field-icon" placeholder="0">
+                                    class="premium-input pl-8" placeholder="0">
                             </div>
                         </div>
                         <div>
-                            <label class="label">Precio de venta <span class="text-red-400">*</span></label>
+                            <label class="premium-label">Precio de venta <span class="text-red-400">*</span></label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a9390] text-sm">$</span>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                                 <input type="number" name="precio_venta" id="precioInput"
                                     value="{{ old('precio_venta', 0) }}" step="0.01" min="0"
                                     oninput="actualizarMargen()"
-                                    class="input-field input-field-icon" placeholder="0">
+                                    class="premium-input pl-8" placeholder="0">
                             </div>
                         </div>
                     </div>
@@ -289,13 +226,12 @@
                 </div>
 
                 {{-- Botones --}}
-                <div class="flex gap-3 pt-4 border-t border-[#f0ede8] mt-auto">
+                <div class="flex gap-3 pt-4 border-t border-slate-200/60 mt-auto">
                     <a href="{{ route('inventario.index') }}"
-                        class="flex-1 text-center py-2.5 bg-[#f5f3ef] text-[#9a9390] text-sm
-                               rounded-xl hover:bg-[#ede8e2] transition-all duration-200">
+                        class="flex-1 premium-button-slate">
                         Cancelar
                     </a>
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="premium-button-emerald flex-1">
                         <i class="bi bi-check-lg mr-1"></i> Guardar producto
                     </button>
                 </div>

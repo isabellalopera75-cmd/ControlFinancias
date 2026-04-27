@@ -1,0 +1,36 @@
+@reference "tailwindcss";
+@reference "./theme.css";
+
+/* Modern Glass Cards */
+.card-pastel { 
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.01);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+.card-pastel:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.03); 
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+input[type=range] { accent-color: #4a7c59; }
+
+/* Buttons */
+.btn-primary { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74, 124, 89, 0.2); }
+.btn-danger { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.btn-danger:hover { background: #c05050 !important; color: white; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(192, 80, 80, 0.2); }
+
+/* TomSelect */
+.ts-control { background-color: rgba(255,255,255,0.7) !important; border: 1px solid rgba(200,210,205,0.5) !important; border-radius: 0.75rem !important; padding: 0.5rem 0.75rem !important; font-size: 0.875rem !important; color: #1e293b !important; box-shadow: none !important; backdrop-filter: blur(4px); transition: all 0.2s; }
+.ts-control.focus { border-color: #a8c8a0 !important; box-shadow: 0 0 0 3px rgba(168, 200, 160, 0.3) !important; background-color: #ffffff !important; }
+.ts-dropdown { border: 1px solid #e2e8f0 !important; border-radius: 0.75rem !important; overflow: hidden; margin-top: 4px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); z-index: 100000 !important; backdrop-filter: blur(12px); background: rgba(255,255,255,0.98) !important; }
+.ts-dropdown .option { padding: 0.5rem 0.75rem; font-size: 0.875rem; transition: background 0.15s; }
+.ts-dropdown .active { background-color: #f1f5f9 !important; color: #0f172a !important; font-weight: 500; }
+.linea-venta { z-index: 10; position: relative; }
+
+
+

@@ -6,46 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración Inicial - ImpulWeb</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/css/auth.css'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        body, * { font-family: 'DM Sans', sans-serif; }
-        .serif { font-family: 'Playfair Display', serif; }
-        
-        /* Modern Glass Theme */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-        }
-        .glass-input {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            transition: all 0.3s ease;
-        }
-        .glass-input:focus {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: #a8c8a0;
-            box-shadow: 0 0 0 3px rgba(168, 200, 160, 0.3);
-        }
 
-        .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .tipo-card { cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.6); }
-        .tipo-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border-color: #a8c8a0; }
-        .tipo-card.selected { 
-            border-color: #2d4a35; 
-            background: linear-gradient(to bottom right, rgba(240,247,242,0.9), rgba(255,255,255,0.8));
-            box-shadow: 0 4px 12px rgba(45, 74, 53, 0.08);
-        }
-        .tipo-card.selected .tipo-icon { background-color: #2d4a35; color: white; }
-        .tipo-card.selected .tipo-title { color: #2d4a35; font-weight: 600; }
-    </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center px-4 py-12 relative overflow-x-hidden">
     {{-- Decorative Background Blobs --}}
@@ -63,7 +27,7 @@
         {{-- Título --}}
         <div class="text-center mb-8">
             <p class="text-[#b0a8a0] text-xs tracking-widest uppercase mb-2">Bienvenido</p>
-            <h1 class="serif text-[#2d4a35] text-4xl">Configura tu <span class="text-[#4a7c59] italic">negocio</span></h1>
+            <h1 class="serif-playfair text-[#2d4a35] text-4xl">Configura tu <span class="text-[#4a7c59] italic">negocio</span></h1>
             <p class="text-[#8a8280] text-sm mt-2 font-light">Completa los pasos para comenzar a usar ImpulWeb</p>
         </div>
 

@@ -1,17 +1,15 @@
 @extends('layouts.app')
 @section('title', 'Informes')
 
+@push('styles')
+    @vite(['resources/css/facturas.css'])
+@endpush
+
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-    body, * { font-family: 'DM Sans', sans-serif; }
-    @media print {
-        nav, header, .no-print { display: none !important; }
-        body { background: white; }
-    }
-</style>
 
 {{-- Header --}}
+<div class="max-w-6xl mx-auto px-4">
 <div class="flex items-center justify-between mb-6">
     <div>
         <p class="text-[#8a8280] text-xs tracking-widest uppercase mb-1">Facturación</p>
@@ -280,5 +278,7 @@
     </table>
 </div>
 @endif
+
+</div>{{-- close max-w-6xl --}}
 
 @endsection
