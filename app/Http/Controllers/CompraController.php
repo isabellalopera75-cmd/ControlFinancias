@@ -30,37 +30,45 @@ class CompraController extends Controller
     // Guardar compra
     public function store(Request $request)
     {
-    $negocio = Auth::user()->negocio;
+        $negocio = Auth::user()->negocio;
 
-    // Adaptamos el request si viene del formulario simple del Dashboard
-    if ($request->has('item_id')) {
-        $request->merge([
-            'items' => [
-                [
-                    'item_id' => $request->item_id,
-                    'cantidad' => $request->cantidad,
-                    'costo_unitario' => $request->costo_unitario,
-                ]
-            ],
-            'fecha' => $request->fecha ?? now()->toDateString(),
-            'descripcion' => $request->referencia ?? 'Compra rápida Dashboard'
+        // Adaptamos el request si viene del formulario simple del Dashboard
+        if ($request->has('item_id')) {
+            $request->merge([
+                'items' => [
+                    [
+                        'item_id' => $request->item_id,
+                        'cantidad' => $request->cantidad,
+                        'costo_unitario' => $request->costo_unitario,
+                    ]
+                ],
+                'fecha' => $request->fecha ?? now()->toDateString(),
+                'descripcion' => $request->referencia ?? 'Compra rápida Dashboard'
+            ]);
+        }
+
+        $request->validate([
+            'fecha'                         => 'required|date',
+            'descripcion'                   => 'nullable|string|max:255',
+            'items'                         => 'required|array|min:1',
+            'items.*.item_id'               => 'required|exists:items,id',
+            'items.*.cantidad'              => 'required|numeric|min:0.001',
+            'items.*.costo_unitario'        => 'nullable|numeric|min:0',
         ]);
-    }
-
-    $request->validate([
-        'fecha'                         => 'required|date',
-        'descripcion'                   => 'nullable|string|max:255',
-        'items'                         => 'required|array|min:1',
-        'items.*.item_id'               => 'required|exists:items,id',
-        'items.*.cantidad'              => 'required|numeric|min:0.001',
-        'items.*.costo_unitario'        => 'required|numeric|min:0',
-    ]);
 
         DB::transaction(function () use ($request, $negocio) {
 
+            // Pre-procesar items para asignar costo si es null (Usar el costo actual del item)
+            $itemsProcesados = collect($request->items)->map(function($i) use ($negocio) {
+                if (empty($i['costo_unitario']) && $i['costo_unitario'] !== "0" && $i['costo_unitario'] !== 0) {
+                    $itemActual = Item::where('id', $i['item_id'])->where('negocio_id', $negocio->id)->first();
+                    $i['costo_unitario'] = $itemActual ? $itemActual->costo_compra : 0;
+                }
+                return $i;
+            })->all();
+
             // Calcular monto total de la compra
-            $montoTotal = collect($request->items)
-                ->sum(fn($i) => $i['cantidad'] * $i['costo_unitario']);
+            $montoTotal = collect($itemsProcesados)->sum(fn($i) => $i['cantidad'] * $i['costo_unitario']);
 
             // Crear movimiento de caja (salida de dinero)
             $movCaja = MovimientoCaja::create([
@@ -71,7 +79,7 @@ class CompraController extends Controller
                 'fecha'       => $request->fecha,
             ]);
 
-            foreach ($request->items as $compra) {
+            foreach ($itemsProcesados as $compra) {
                 $item = Item::where('id', $compra['item_id'])
                             ->where('negocio_id', $negocio->id)
                             ->lockForUpdate()
@@ -97,7 +105,7 @@ class CompraController extends Controller
                 ]);
 
                 // Crear movimiento de inventario (entrada)
-                $movInv = MovimientoInventario::create([
+                MovimientoInventario::create([
                     'negocio_id'     => $negocio->id,
                     'item_id'        => $item->id,
                     'tipo'           => 'entrada',
@@ -116,6 +124,12 @@ class CompraController extends Controller
                 ]);
             }
         });
+
+        // Redirigir según de donde venga
+        if ($request->header('referer') && str_contains($request->header('referer'), 'inventario/entradas')) {
+            return redirect()->route('inventario.entradas')
+                             ->with('success', 'Entrada registrada correctamente.');
+        }
 
         return redirect()->route('dashboard')
                          ->with('success', 'Compra registrada correctamente.');

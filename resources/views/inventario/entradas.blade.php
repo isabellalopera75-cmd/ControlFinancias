@@ -6,236 +6,192 @@
 @endpush
 
 @section('content')
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-
-{{-- HEADER --}}
+{{-- HEADER DE LA PÁGINA --}}
 <div class="max-w-6xl mx-auto flex items-center justify-between mb-6 px-4">
     <div>
-        <p class="text-[#9a9390] text-xs tracking-widests uppercase mb-1">Módulo</p>
+        <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Módulo</p>
         <h1 class="text-[#2a2522] text-3xl leading-tight">
             Gestión de <em class="text-[#4a7c59]">Inventario</em>
         </h1>
     </div>
-    <button onclick="abrirModalEntrada()"
-        class="premium-button-emerald">
-        <i class="bi bi-plus-lg"></i> Nueva entrada
-    </button>
-</div>
-
-{{-- PESTAÑAS --}}
-<div class="max-w-6xl mx-auto mb-6 px-4">
-    <div class="flex gap-1 bg-[#f0ede8] p-1 rounded-xl w-fit">
-        <a href="{{ route('inventario.index') }}"
-            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                   text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
-            <i class="bi bi-box-seam mr-1.5"></i> Productos
-        </a>
-        <a href="{{ route('inventario.entradas') }}"
-            class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                   bg-white text-[#2d4a35] shadow-sm">
-            <i class="bi bi-truck mr-1.5"></i> Entradas
-        </a>
+    <div class="flex gap-3">
+        <button id="btnNuevaEntrada" onclick="toggleFormulario(true)"
+            class="premium-button-emerald">
+            <i class="bi bi-plus-lg mr-1"></i> Registrar Factura
+        </button>
+        <button id="btnVolverHistorial" onclick="toggleFormulario(false)"
+            class="premium-button-slate hidden py-2.5">
+            <i class="bi bi-arrow-left text-xs mr-1"></i> Ver Historial
+        </button>
     </div>
 </div>
 
-{{-- HISTORIAL DE COMPRAS --}}
-<div class="max-w-6xl mx-auto px-4 mb-10">
+{{-- SECCIÓN: FORMULARIO --}}
+<div id="sectionFormEntrada" class="hidden max-w-6xl mx-auto px-4 mb-12 animate-fade-in">
+    <div class="glass-card overflow-hidden">
+        
+        {{-- Header Factura --}}
+        <div class="bg-[#2d4a35] px-8 py-5 flex items-center gap-4">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <i class="bi bi-receipt text-white text-lg"></i>
+            </div>
+            <div>
+                <p class="text-white font-semibold text-base">Nueva Factura</p>
+                <p class="text-[#a8c8a0] text-xs">Ingresa los productos recibidos hoy.</p>
+            </div>
+        </div>
+
+        <form action="{{ route('compras.store') }}" method="POST" id="formEntrada" class="bg-white">
+            @csrf
+            
+            {{-- DATOS CABECERA --}}
+            <div class="p-8 border-b border-slate-200/60">
+                <div class="section-header">
+                    <div class="step-badge">1</div>
+                    <p class="text-[#2a2522] text-sm font-semibold">Datos de la Factura</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
+                    <div>
+                        <label class="premium-label">Proveedor / Factura #</label>
+                        <input type="text" name="descripcion" placeholder="Ej: Distribuidora XYZ"
+                               class="premium-input">
+                    </div>
+                    <div>
+                        <label class="premium-label">Fecha de Recepción <span class="text-red-400">*</span></label>
+                        <input type="date" name="fecha" required value="{{ date('Y-m-d') }}"
+                               class="premium-input">
+                    </div>
+                </div>
+            </div>
+
+            {{-- LISTADO DE PRODUCTOS --}}
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="section-header mb-0">
+                        <div class="step-badge">2</div>
+                        <p class="text-[#2a2522] text-sm font-semibold">Detalle de Productos</p>
+                    </div>
+                    <span class="text-[0.62rem] text-[#b0a8a0] font-semibold tracking-widest uppercase bg-[#f5f3ef] px-3 py-1.5 rounded-lg" id="contadorLineas">0 ítems</span>
+                </div>
+
+                <div id="lineasEntrada" class="space-y-3 mb-6">
+                    {{-- Filas dinámicas --}}
+                </div>
+
+                <button type="button" onclick="agregarLineaEntrada()"
+                    class="w-full py-3.5 border-2 border-dashed border-[#e8e4e0] text-[#9a9390]
+                           text-xs font-medium rounded-2xl hover:bg-[#f0f7f2] hover:border-[#c8e0cc] hover:text-[#4a7c59]
+                           transition-all duration-300 flex items-center justify-center gap-2 group">
+                    <i class="bi bi-plus-circle text-base"></i> 
+                    Agregar producto a la lista
+                </button>
+            </div>
+
+            {{-- FOOTER --}}
+            <div class="p-8 border-t border-slate-200/60 mt-auto bg-white">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div id="previewEntrada" class="hidden bg-[#f0f7f2] border border-[#c8e0cc] rounded-xl px-6 py-4 flex items-center gap-4">
+                        <div>
+                            <span class="text-[#2d4a35] text-[0.62rem] uppercase tracking-widest font-semibold block mb-0.5">Total Factura</span>
+                            <span id="totalEntrada" class="text-[#2a2522] text-xl font-semibold">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 w-full md:w-auto ml-auto">
+                        <button type="button" onclick="toggleFormulario(false)"
+                                class="premium-button-slate flex-1 md:flex-none py-3">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="premium-button-emerald flex-1 md:flex-none py-3">
+                            <i class="bi bi-check-lg mr-1"></i> Guardar Ingreso
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- HISTORIAL --}}
+<div id="sectionHistorial" class="max-w-6xl mx-auto px-4 mb-12">
+    {{-- PESTAÑAS --}}
+    <div class="mb-6">
+        <div class="flex gap-1 bg-[#f0ede8] p-1 rounded-xl w-fit">
+            <a href="{{ route('inventario.index') }}"
+                class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                       text-[#9a9390] hover:text-[#2d4a35] hover:bg-white/60">
+                <i class="bi bi-box-seam mr-1.5"></i> Productos
+            </a>
+            <a href="{{ route('inventario.entradas') }}"
+                class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                       bg-white text-[#2d4a35] shadow-sm">
+                <i class="bi bi-truck mr-1.5"></i> Entradas
+            </a>
+        </div>
+    </div>
+
     <div class="glass-card overflow-hidden">
         <div class="max-h-[600px] overflow-y-auto custom-scrollbar">
             @if($compras->isEmpty())
-                <div class="p-12 text-center">
-                    <div class="w-14 h-14 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="bi bi-truck text-[#b0a8a0] text-2xl"></i>
-                    </div>
-                    <p class="text-[#9a9390] text-sm">No hay entradas de mercancía registradas.</p>
-                    <button onclick="abrirModalEntrada()"
-                        class="inline-block mt-4 premium-button-emerald mx-auto">
-                        + Registrar primera entrada
-                    </button>
+                <div class="p-16 text-center">
+                    <p class="text-slate-400 text-sm font-medium">No hay facturas registradas.</p>
                 </div>
             @else
-                <table class="w-full text-sm">
+                <table class="w-full text-sm border-collapse">
                     <thead class="sticky top-0 z-10">
                         <tr class="text-white">
                             <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold rounded-tl-xl">Fecha</th>
                             <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Proveedor / Factura</th>
-                            <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Productos</th>
-                            <th class="bg-[#2d4a35] px-5 py-4 text-right text-xs tracking-widest uppercase font-semibold">Total</th>
+                            <th class="bg-[#2d4a35] px-5 py-4 text-right text-xs tracking-widest uppercase font-semibold">Monto</th>
                             <th class="bg-[#2d4a35] px-5 py-4 text-center text-xs tracking-widest uppercase font-semibold rounded-tr-xl">Detalle</th>
                         </tr>
                     </thead>
-            <tbody>
-                @foreach($compras as $compra)
-                <tr class="border-b border-[#f0ede8] hover:bg-[#faf8f5] transition"
-                    x-data="{ abierto: false }">
-
-                    {{-- Fecha --}}
-                    <td class="px-5 py-3 text-[#9a9390] text-xs">
-                        {{ \Carbon\Carbon::parse($compra->fecha)->format('d/m/Y') }}
-                    </td>
-
-                    {{-- Proveedor / Factura --}}
-                    <td class="px-5 py-3 text-[#2a2522] font-medium">
-                        {{ $compra->descripcion ?? 'Sin referencia' }}
-                    </td>
-
-                    {{-- Productos --}}
-                    <td class="px-5 py-3">
-                        @if($compra->comprasDetalle->count() > 0)
-                            <div class="flex flex-col gap-0.5">
-                                @foreach($compra->comprasDetalle as $detalle)
-                                    <span class="text-xs text-[#5a5250]">
-                                        {{ $detalle->item->nombre ?? '—' }}
-                                        <span class="text-[#9a9390]">
-                                            × {{ number_format($detalle->cantidad, 0) }}
-                                        </span>
-                                    </span>
-                                @endforeach
-                            </div>
-                        @else
-                            <span class="text-xs text-[#b0a8a0]">Sin detalle</span>
-                        @endif
-                    </td>
-
-                    {{-- Total --}}
-                    <td class="px-5 py-3 text-right font-semibold text-[#2a2522]">
-                        {{ $negocio->moneda }} {{ number_format($compra->monto, 0, ',', '.') }}
-                    </td>
-
-                    {{-- Detalle expandible --}}
-                    <td class="px-5 py-3 text-center">
-                        <button onclick="toggleDetalle('detalle-{{ $compra->id }}')"
-                            class="bg-[#f0ede8] text-[#5a5250] px-3 py-1.5 rounded-lg text-xs
-                                   hover:bg-[#e8e4e0] transition">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </td>
-                </tr>
-
-                {{-- Fila expandible con detalle --}}
-                <tr id="detalle-{{ $compra->id }}" class="hidden bg-[#faf9f7]">
-                    <td colspan="5" class="px-8 py-4">
-                        <div class="border border-[#e8e4e0] rounded-xl overflow-hidden">
-                            <table class="w-full text-xs">
-                                <thead>
-                                    <tr class="bg-[#f0ede8]">
-                                        <th class="px-4 py-2 text-left text-[#8a8280] uppercase tracking-wide">Producto</th>
-                                        <th class="px-4 py-2 text-center text-[#8a8280] uppercase tracking-wide">Cantidad</th>
-                                        <th class="px-4 py-2 text-right text-[#8a8280] uppercase tracking-wide">Costo Unit.</th>
-                                        <th class="px-4 py-2 text-right text-[#8a8280] uppercase tracking-wide">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($compra->comprasDetalle as $det)
-                                    <tr class="border-t border-[#f0ede8]">
-                                        <td class="px-4 py-2 text-[#2a2522] font-medium">
-                                            {{ $det->item->nombre ?? '—' }}
-                                        </td>
-                                        <td class="px-4 py-2 text-center text-[#5a5250]">
-                                            {{ number_format($det->cantidad, 0) }}
-                                        </td>
-                                        <td class="px-4 py-2 text-right text-[#5a5250]">
-                                            {{ $negocio->moneda }} {{ number_format($det->costo_unitario, 0, ',', '.') }}
-                                        </td>
-                                        <td class="px-4 py-2 text-right font-semibold text-[#2a2522]">
-                                            {{ $negocio->moneda }} {{ number_format($det->cantidad * $det->costo_unitario, 0, ',', '.') }}
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        {{-- Paginación --}}
-        @if($compras->hasPages())
-            <div class="px-5 py-4 border-t border-[#f0ede8]">
-                {{ $compras->links() }}
-            </div>
-        @endif
-    @endif
-</div>
-
-{{-- ══════════════ MODAL NUEVA ENTRADA ══════════════ --}}
-<div id="modalEntrada"
-     class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden items-center justify-center z-50">
-
-    <div class="glass-card w-full max-w-2xl mx-4 p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
-
-        {{-- Header modal --}}
-        <div class="flex items-start justify-between mb-5">
-            <div>
-                <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Inventario</p>
-                <h2 class="text-[#2a2522] text-xl">Nueva Entrada de Mercancía</h2>
-            </div>
-            <button onclick="cerrarModalEntrada()"
-                class="w-8 h-8 flex items-center justify-center rounded-full bg-[#f5f3ef]
-                       text-[#9a9390] hover:bg-[#ede8e2] transition text-sm flex-shrink-0 ml-4">
-                ✕
-            </button>
+                    <tbody>
+                        @foreach($compras as $compra)
+                        <tr class="border-b border-slate-100 hover:bg-emerald-50/30 transition fila-item">
+                            <td class="px-5 py-3 text-slate-500 font-medium text-sm border-r border-slate-100">{{ \Carbon\Carbon::parse($compra->fecha)->format('d/m/Y') }}</td>
+                            <td class="px-5 py-3 text-[#2a2522] font-semibold text-sm border-r border-slate-100">{{ $compra->descripcion ?? '—' }}</td>
+                            <td class="px-5 py-3 text-right font-bold text-[#2a2522] text-sm border-r border-slate-100">{{ $negocio->moneda }} {{ number_format($compra->monto, 0, ',', '.') }}</td>
+                            <td class="px-5 py-3 text-center">
+                                <button onclick="toggleDetalle('detalle-{{ $compra->id }}', this)"
+                                    class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition mx-auto group border border-transparent hover:border-emerald-200">
+                                    <i class="bi bi-chevron-down transition-transform group-[.active]:rotate-180"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="detalle-{{ $compra->id }}" class="hidden bg-slate-50/50">
+                            <td colspan="4" class="px-8 py-6">
+                                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-slate-50 text-slate-400 font-bold text-[0.65rem] uppercase tracking-widest border-b border-slate-100">
+                                                <th class="px-6 py-3 text-left">Producto</th>
+                                                <th class="px-6 py-3 text-center">Cant.</th>
+                                                <th class="px-6 py-3 text-right">Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-50">
+                                            @foreach($compra->comprasDetalle as $det)
+                                            <tr>
+                                                <td class="px-6 py-3 text-[#2a2522] font-semibold">{{ $det->item->nombre ?? '—' }}</td>
+                                                <td class="px-6 py-3 text-center text-slate-600 font-medium">{{ number_format($det->cantidad, 0) }}</td>
+                                                <td class="px-6 py-3 text-right font-bold text-[#2a2522]">{{ number_format($det->cantidad * $det->costo_unitario, 0) }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
-
-        <form action="{{ route('compras.store') }}" method="POST" id="formEntrada">
-            @csrf
-
-            {{-- Proveedor / Referencia --}}
-            <div class="mb-4">
-                <label class="premium-label">
-                    Proveedor o N° de Factura
-                </label>
-                <input type="text" name="descripcion"
-                       placeholder="Ej: Proveedor ABC — Factura #1234"
-                       class="premium-input">
-            </div>
-
-            {{-- Fecha --}}
-            <div class="mb-5">
-                <label class="premium-label">
-                    Fecha de entrada
-                </label>
-                <input type="date" name="fecha" required value="{{ date('Y-m-d') }}"
-                       class="premium-input">
-            </div>
-
-            {{-- Líneas de productos --}}
-            <div class="mb-3">
-                <label class="block text-[#8a8280] text-[0.7rem] font-medium tracking-widest uppercase mb-3">
-                    Productos
-                </label>
-                <div id="lineasEntrada" class="space-y-3"></div>
-            </div>
-
-            <button type="button" onclick="agregarLineaEntrada()"
-                class="w-full py-2.5 border-2 border-dashed border-[#c8e0cc] text-[#4a7c59]
-                       text-sm rounded-xl hover:bg-[#f0f7f2] transition mb-5">
-                <i class="bi bi-plus-circle mr-1"></i> Agregar producto
-            </button>
-
-            {{-- Preview total --}}
-            <div id="previewEntrada" class="hidden bg-[#f0f7f2] border border-[#c8e0cc] rounded-xl px-4 py-3 mb-5">
-                <div class="flex justify-between items-center">
-                    <span class="text-[#4a7c59] text-xs uppercase tracking-wide font-medium">Total de la entrada</span>
-                    <span id="totalEntrada" class="text-[#2d4a35] text-lg font-bold">$0</span>
-                </div>
-            </div>
-
-            {{-- Botones --}}
-            <div class="flex gap-3">
-                <button type="submit"
-                        class="premium-button-emerald flex-1">
-                    <i class="bi bi-check-lg"></i> Registrar entrada
-                </button>
-                <button type="button" onclick="cerrarModalEntrada()"
-                        class="premium-button-slate flex-1">
-                    Cancelar
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 
@@ -243,61 +199,63 @@
     const productosEntrada = @json($items);
     let contadorEntrada = 0;
 
-    function abrirModalEntrada() {
-        const modal = document.getElementById('modalEntrada');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (contadorEntrada === 0) agregarLineaEntrada();
-    }
-
-    function cerrarModalEntrada() {
-        const modal = document.getElementById('modalEntrada');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+    function toggleFormulario(show) {
+        document.getElementById('sectionFormEntrada').classList.toggle('hidden', !show);
+        document.getElementById('sectionHistorial').classList.toggle('hidden', show);
+        document.getElementById('btnNuevaEntrada').classList.toggle('hidden', show);
+        document.getElementById('btnVolverHistorial').classList.toggle('hidden', !show);
+        if (show && document.querySelectorAll('.linea-entrada').length === 0) agregarLineaEntrada();
     }
 
     function agregarLineaEntrada() {
         contadorEntrada++;
+        actualizarContador();
         const idx = contadorEntrada;
         const div = document.createElement('div');
-        div.className = 'grid grid-cols-12 gap-2 items-center linea-entrada';
+        div.className = 'linea-entrada animate-fade-in bg-[#fbfaf9] p-3 rounded-xl border border-[#e8e4e0] hover:border-[#c8e0cc] transition-all';
         div.innerHTML = `
-            <div class="col-span-5">
-                <select name="items[${idx}][item_id]" onchange="calcularTotalEntrada()"
-                    class="w-full px-3 py-2.5 bg-[#faf9f7] border border-[#e8e4e0] rounded-xl
-                           text-sm focus:outline-none focus:border-[#a8c8a0]">
-                    <option value="">— Producto —</option>
-                    ${productosEntrada.map(p => `
-                        <option value="${p.id}">${p.nombre}</option>
-                    `).join('')}
-                </select>
-            </div>
-            <div class="col-span-2">
-                <input type="number" name="items[${idx}][cantidad]"
-                       step="any" min="0.001" placeholder="Cant."
-                       oninput="calcularTotalEntrada()"
-                       class="w-full px-3 py-2.5 bg-[#faf9f7] border border-[#e8e4e0]
-                              rounded-xl text-sm focus:outline-none focus:border-[#a8c8a0]">
-            </div>
-            <div class="col-span-3">
-                <input type="number" name="items[${idx}][costo_unitario]"
-                       step="any" min="0" placeholder="Costo unit."
-                       oninput="calcularTotalEntrada()"
-                       class="w-full px-3 py-2.5 bg-[#faf9f7] border border-[#e8e4e0]
-                              rounded-xl text-sm focus:outline-none focus:border-[#a8c8a0]">
-            </div>
-            <div class="col-span-1 text-right">
-                <span class="subtotal-entrada text-[#9a9390] text-xs font-mono"></span>
-            </div>
-            <div class="col-span-1 text-center">
-                <button type="button"
-                        onclick="this.closest('.linea-entrada').remove(); calcularTotalEntrada()"
-                        class="text-red-400 hover:text-red-600 transition p-1">
-                    <i class="bi bi-trash"></i>
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <div class="col-span-12 md:col-span-5 relative">
+                    <select name="items[${idx}][item_id]" onchange="calcularTotalEntrada()"
+                        class="premium-input !py-2.5 !pl-3 !pr-8 appearance-none !bg-white">
+                        <option value="">— Seleccionar Producto —</option>
+                        ${productosEntrada.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('')}
+                    </select>
+                    <i class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9390] pointer-events-none text-xs"></i>
+                </div>
+                
+                <div class="col-span-5 md:col-span-2">
+                    <input type="number" name="items[${idx}][cantidad]" step="any" min="0.001" placeholder="Cant."
+                           oninput="calcularTotalEntrada()"
+                           class="premium-input !py-2.5 !bg-white text-center">
+                </div>
+                
+                <div class="col-span-5 md:col-span-2 relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a9390] text-sm">$</span>
+                    <input type="number" name="items[${idx}][costo_unitario]" step="any" min="0" placeholder="Costo (Opc)"
+                           oninput="calcularTotalEntrada()"
+                           class="premium-input !py-2.5 !pl-6 !bg-white">
+                </div>
+
+                <div class="col-span-10 md:col-span-2 text-right px-1">
+                    <span class="subtotal-entrada text-[#2d4a35] text-sm font-semibold tracking-tight"></span>
+                </div>
+
+                <div class="col-span-2 md:col-span-1 text-right">
+                    <button type="button" onclick="this.closest('.linea-entrada').remove(); calcularTotalEntrada(); actualizarContador()"
+                            class="w-8 h-8 flex items-center justify-center rounded-xl bg-[#f5f3ef] text-[#9a9390] hover:bg-[#ffe5e5] hover:text-[#d32f2f] transition-all mx-auto">
+                        <i class="bi bi-trash3 text-sm"></i>
+                    </button>
+                </div>
             </div>
         `;
         document.getElementById('lineasEntrada').appendChild(div);
+    }
+
+    function actualizarContador() {
+        const n = document.querySelectorAll('.linea-entrada').length;
+        const span = document.getElementById('contadorLineas');
+        if (span) span.textContent = n + (n === 1 ? ' ítem' : ' ítems');
     }
 
     function calcularTotalEntrada() {
@@ -310,16 +268,13 @@
             const span = row.querySelector('.subtotal-entrada');
             if (span) span.textContent = subtotal > 0 ? '$' + subtotal.toLocaleString('es-CO') : '';
         });
-
         document.getElementById('totalEntrada').textContent = '$' + total.toLocaleString('es-CO');
         document.getElementById('previewEntrada').classList.toggle('hidden', total === 0);
     }
 
-    function toggleDetalle(id) {
-        const fila = document.getElementById(id);
-        fila.classList.toggle('hidden');
-        fila.classList.toggle('table-row');
+    function toggleDetalle(id, btn) {
+        document.getElementById(id).classList.toggle('hidden');
+        if (btn) btn.classList.toggle('active');
     }
 </script>
-
 @endsection
