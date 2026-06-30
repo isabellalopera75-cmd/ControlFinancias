@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MovimientoCaja;
+use App\Models\Factura;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\FacturaEmail;
@@ -63,6 +64,15 @@ class FacturaController extends Controller
         $pdf = Pdf::loadView('facturas.pdf', compact('venta', 'negocio', 'numero'))
             ->setPaper('a4', 'portrait');
 
+        Factura::firstOrCreate(
+            ['movimiento_caja_id' => $venta->id],
+            [
+                'negocio_id' => $negocio->id,
+                'numero'     => $numero,
+                'estado'     => 'creada',
+            ]
+        );
+
         return $pdf->download("factura-{$numero}.pdf");
     }
         public function enviarCorreo(Request $request, $id)
@@ -82,6 +92,13 @@ class FacturaController extends Controller
 
         Mail::to($request->email_comprador)
             ->send(new FacturaEmail($venta, $negocio, $numero));
+
+        Factura::where('movimiento_caja_id', $venta->id)
+            ->update([
+                'estado'           => 'enviada',
+                'email_comprador'  => $request->email_comprador,
+                'enviada_at'       => now(),
+            ]);
 
         return redirect()->route('dashboard')
         ->with('success', '📧 Factura enviada correctamente a ' . $request->email_comprador);

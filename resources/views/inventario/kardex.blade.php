@@ -55,7 +55,7 @@
     </div>
     <div class="bg-white border border-[#ede8e2] rounded-2xl p-5">
         <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Total movimientos</p>
-        <p class="text-[#2a2522] text-2xl font-medium">{{ $movimientos->count() }}</p>
+        <p class="text-[#2a2522] text-2xl font-medium">{{ $totalMovimientos }}</p>
     </div>
 </div>
 
@@ -76,12 +76,12 @@
     @else
     <table class="w-full text-sm">
         <thead>
-            <tr class="bg-[#d6e8d0]">
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Fecha</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Tipo</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Cantidad</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Costo unitario</th>
-                <th class="px-5 py-3 text-left text-[#2d4a35] text-xs tracking-widest uppercase font-medium">Referencia</th>
+            <tr class="text-white">
+                <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold rounded-tl-xl">Fecha</th>
+                <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Tipo</th>
+                <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Cantidad</th>
+                <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold">Costo unitario</th>
+                <th class="bg-[#2d4a35] px-5 py-4 text-left text-xs tracking-widest uppercase font-semibold rounded-tr-xl">Referencia</th>
             </tr>
         </thead>
         <tbody>
@@ -120,6 +120,12 @@
             @endforeach
         </tbody>
     </table>
+    @endif
+
+    @if($movimientos->hasPages())
+    <div class="px-6 py-4 border-t border-[#f0ede8]">
+        {{ $movimientos->links() }}
+    </div>
     @endif
 </div>
 

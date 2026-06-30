@@ -98,17 +98,58 @@
                 </div>
 
                 @if(session('error'))
-                <div class="mb-6 px-4 py-3 bg-[#fef2f2] border border-[#fecaca] rounded-xl text-[#991b1b] text-sm flex items-center gap-2">
+                <div id="error-container" class="mb-6 px-4 py-3 bg-[#fef2f2] border border-[#fecaca] rounded-xl text-[#991b1b] text-sm flex items-center gap-2">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    {{ session('error') }}
+                    <span id="error-text">{{ session('error') }}</span>
                 </div>
                 @endif
 
-                <button type="submit" class="group btn-submit w-full py-4 bg-[#0f172a] text-white rounded-xl text-sm font-medium flex justify-center items-center gap-2 overflow-hidden relative border border-[#1e293b] hover:bg-[#1e293b]">
+                <button id="submit-btn" type="submit" class="group btn-submit w-full py-4 bg-[#0f172a] text-white rounded-xl text-sm font-medium flex justify-center items-center gap-2 overflow-hidden relative border border-[#1e293b] hover:bg-[#1e293b]">
                     <span class="relative z-10 transition-transform group-hover:-translate-x-1">Entrar al dashboard</span>
                     <svg class="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all relative z-10 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
             </form>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const errorContainer = document.getElementById('error-container');
+                    const errorText = document.getElementById('error-text');
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    const submitBtn = document.getElementById('submit-btn');
+
+                    if (errorText && errorText.innerText.includes('segundos')) {
+                        // Deshabilitar inputs al detectar bloqueo
+                        emailInput.disabled = true;
+                        passwordInput.disabled = true;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                        // Extraer el número de segundos actual
+                        let match = errorText.innerText.match(/(\d+)\s+segundos/);
+                        if (match) {
+                            let segundos = parseInt(match[1]);
+                            
+                            let intervalo = setInterval(() => {
+                                segundos--;
+                                if (segundos > 0) {
+                                    // Actualizar el contador visualmente
+                                    errorText.innerText = `Demasiados intentos fallidos. Intenta de nuevo en ${segundos} segundos.`;
+                                } else {
+                                    clearInterval(intervalo);
+                                    // Rehabilitar inputs al llegar a 0
+                                    emailInput.disabled = false;
+                                    passwordInput.disabled = false;
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                    // Ocultar el mensaje de error
+                                    errorContainer.style.display = 'none';
+                                }
+                            }, 1000);
+                        }
+                    }
+                });
+            </script>
 
             <p class="fade-up d-3 mt-8 text-center text-sm text-[#64748b]">
                 ¿No tienes cuenta? <a href="/configuracion-inicial" class="text-[#10b981] font-medium hover:underline transition-colors">Crea tu negocio gratis</a>

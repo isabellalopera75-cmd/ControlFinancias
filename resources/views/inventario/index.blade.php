@@ -189,12 +189,18 @@
             @endif
         </div>
     </div>
+
+    @if($items->hasPages())
+    <div class="mt-4 px-2">
+        {{ $items->links() }}
+    </div>
+    @endif
 </div>
 
 {{-- MODAL AJUSTE DE STOCK --}}
 <div id="modalAjuste"
     class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden items-center justify-center z-50">
-    <div class="glass-card w-full max-w-md mx-4 p-8">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">
         <div class="flex justify-between items-center mb-5">
             <div>
                 <p class="text-[#9a9390] text-xs tracking-widest uppercase mb-1">Inventario</p>
@@ -210,7 +216,7 @@
             <div class="mb-4">
                 <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Tipo de ajuste</label>
                 <select name="tipo" required
-                    class="w-full border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]">
+                    class="w-full bg-[#faf9f7] border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]">
                     <option value="entrada">Entrada (suma stock)</option>
                     <option value="salida">Salida (resta stock)</option>
                     <option value="ajuste">Ajuste (establece stock exacto)</option>
@@ -222,19 +228,19 @@
                 </p>
                 <label id="labelCantidad" class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Cantidad</label>
                 <input type="number" name="cantidad" step="0.001" min="0.001" required
-                    class="w-full border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]"
+                    class="w-full bg-[#faf9f7] border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]"
                     placeholder="0">
             </div>
             <div class="mb-4">
                 <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Costo unitario (opcional)</label>
                 <input type="number" name="costo_unitario" step="0.01" min="0"
-                    class="w-full border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]"
+                    class="w-full bg-[#faf9f7] border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]"
                     placeholder="0">
             </div>
             <div class="mb-6">
-                <label class="premium-label">Fecha</label>
+                <label class="block text-[#9a9390] text-xs tracking-widest uppercase mb-2">Fecha</label>
                 <input type="date" name="fecha" required value="{{ date('Y-m-d') }}"
-                    class="premium-input">
+                    class="w-full bg-[#faf9f7] border border-[#e8e4e0] rounded-xl px-4 py-3 text-sm text-[#2a2522] focus:outline-none focus:ring-2 focus:ring-[#b8d8b0]">
             </div>
             <div class="flex gap-3 justify-end pt-4">
                 <button type="button" onclick="cerrarAjuste()"

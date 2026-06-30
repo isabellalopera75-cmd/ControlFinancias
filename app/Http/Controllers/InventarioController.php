@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Exports\InventarioExport;
 use App\Imports\InventarioImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Requests\AjustarInventarioRequest;
+use App\Http\Requests\ImportarInventarioRequest;
 
 class InventarioController extends Controller
 {
@@ -33,7 +35,7 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
             $query->where('categoria', $request->filtro_categoria);
         }
 
-        $items = $query->orderBy('nombre')->get();
+        $items = $query->orderBy('nombre')->paginate(20)->withQueryString();
 
         $stockBajo = Item::where('negocio_id', $negocio->id)
                         ->where('activo', true)
@@ -202,16 +204,10 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
                          ->with('success', 'Producto eliminado correctamente.');
     }
 
-    public function ajuste(Request $request, $id)
+    public function ajuste(AjustarInventarioRequest $request, $id)
     {
         $item = Item::findOrFail($id);
         $this->autorizarItem($item);
-
-        $request->validate([
-            'tipo'     => 'required|in:entrada,salida,ajuste',
-            'cantidad' => 'required|numeric|min:0.01',
-            'motivo'   => 'nullable|string|max:255',
-        ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($request, $item) {
             $itemBloqueado = Item::where('id', $item->id)->lockForUpdate()->firstOrFail();
@@ -240,9 +236,11 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
         $movimientos = $item->movimientosInventario()
                             ->orderBy('fecha', 'desc')
                             ->orderBy('created_at', 'desc')
-                            ->get();
+                            ->paginate(20);
 
-        return view('inventario.kardex', compact('item', 'movimientos'));
+        $totalMovimientos = $item->movimientosInventario()->count();
+
+        return view('inventario.kardex', compact('item', 'movimientos', 'totalMovimientos'));
     }
 
     public function reconstruirStock($id)
@@ -268,23 +266,24 @@ $categoriasExistentes = Item::where('negocio_id', $negocio->id)
         return Excel::download(new InventarioExport(), 'plantilla_inventario.xlsx');
     }
 
-        public function importar(Request $request)
+        public function importar(ImportarInventarioRequest $request)
     {
         $negocio = Auth::user()->negocio;
         abort_if(!$negocio->tieneInventario(), 403);
-
-        $request->validate([
-            'archivo' => 'required|file|mimes:xlsx,xls,csv|max:5120',
-        ]);
 
         try {
             $import = new InventarioImport();
             Excel::import($import, $request->file('archivo'));
 
+            if ($import->importados === 0 && $import->errores > 0) {
+                $mensaje = "⚠ El archivo Excel no cumple con el formato o los datos requeridos.";
+                return redirect()->route('inventario.index')->with('error', $mensaje);
+            }
+
             $mensaje = "✅ {$import->importados} productos importados correctamente.";
 
             if ($import->errores > 0) {
-                $mensaje .= " ⚠ {$import->errores} filas con errores: " . implode(' | ', $import->mensajesError);
+                $mensaje .= " ⚠ {$import->errores} filas tenían errores de formato y no se importaron.";
             }
 
             return redirect()->route('inventario.index')->with('success', $mensaje);

@@ -193,6 +193,12 @@
             @endif
         </div>
     </div>
+
+    @if($compras->hasPages())
+    <div class="mt-4 px-2">
+        {{ $compras->links() }}
+    </div>
+    @endif
 </div>
 
 <script>

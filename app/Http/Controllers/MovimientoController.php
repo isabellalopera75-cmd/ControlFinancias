@@ -4,132 +4,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
-use App\Models\VentaDetalle;
 use App\Models\MovimientoCaja;
 use App\Models\MovimientoInventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\RegistrarVentaRequest;
+use App\Services\VentaProductoService;
+use App\Services\VentaServicioService;
 
 class MovimientoController extends Controller
 {
+    protected $ventaProductoService;
+    protected $ventaServicioService;
+
+    public function __construct(VentaProductoService $ventaProductoService, VentaServicioService $ventaServicioService)
+    {
+        $this->ventaProductoService = $ventaProductoService;
+        $this->ventaServicioService = $ventaServicioService;
+    }
+
     // =====================================================
     // REGISTRAR VENTA
     // =====================================================
-    public function registrarVenta(Request $request)
+    public function registrarVenta(RegistrarVentaRequest $request)
     {
         $negocio = Auth::user()->negocio;
 
         if ($negocio->esReventa()) {
-            return $this->registrarVentaReventa($request, $negocio);
+            $resultado = $this->ventaProductoService->registrar($request, $negocio);
+            $movCaja = $resultado['movimiento'];
+            $advertencias = $resultado['advertencias'];
+            
+            $mensaje = 'Venta registrada correctamente.';
+            if (!empty($advertencias)) {
+                $mensaje .= ' | ' . implode(' | ', $advertencias);
+            }
+            
+            return redirect()->route('dashboard')->with('success', $mensaje)->with('nueva_venta_id', $movCaja->id);
         }
-
-        // SERVICIOS: monto libre
-        $request->validate([
-            'monto' => 'required|numeric|min:0.01',
-            'fecha' => 'required|date',
-        ]);
-
-        MovimientoCaja::create([
-            'negocio_id'  => $negocio->id,
-            'monto'       => $request->monto,
-            'descripcion' => $request->descripcion ?? 'Venta',
-            'es_venta'    => true,
-            'fecha'       => $request->fecha,
-        ]);
 
         return redirect()->route('dashboard')
-                         ->with('success', 'Venta registrada correctamente.');
-    }
-
-    // =====================================================
-    // REGISTRAR VENTA REVENTA (por producto con stock)
-    // =====================================================
-    private function registrarVentaReventa(Request $request, $negocio)
-    {
-        $request->validate([
-            'items'                   => 'required|array|min:1',
-            'items.*.item_id'         => 'required|exists:items,id',
-            'items.*.cantidad'        => 'required|numeric|min:0.001',
-            'items.*.precio_unitario' => 'nullable|numeric|min:0',
-            'fecha'                   => 'required|date',
-            'descripcion'             => 'nullable|string|max:255',
-        ]);
-
-        $advertencias = [];
-
-        $movCaja = null;
-        DB::transaction(function () use ($request, $negocio, &$advertencias, &$movCaja) {
-
-            $montoTotal = 0;
-            foreach ($request->items as $linea) {
-                $item        = Item::where('id', $linea['item_id'])
-                                   ->where('negocio_id', $negocio->id)
-                                   ->lockForUpdate()
-                                   ->firstOrFail();
-                $precio      = $linea['precio_unitario'] ?? $item->precio_venta;
-                $montoTotal += $precio * $linea['cantidad'];
-            }
-
-            $movCaja = MovimientoCaja::create([
-                'negocio_id'  => $negocio->id,
-                'monto'       => $montoTotal,
-                'descripcion' => $request->descripcion ?? 'Venta',
-                'es_venta'    => true,
-                'fecha'       => $request->fecha,
-                'metodo_pago' => $request->metodo_pago ?? 'efectivo',
-            ]);
-
-            foreach ($request->items as $linea) {
-                $item     = Item::where('id', $linea['item_id'])
-                                ->where('negocio_id', $negocio->id)
-                                ->lockForUpdate()
-                                ->firstOrFail();
-                $cantidad = $linea['cantidad'];
-                $precio   = $linea['precio_unitario'] ?? $item->precio_venta;
-                $costo    = $item->costo_compra;
-
-                if ($item->stock < $cantidad) {
-                    $advertencias[] = "Stock insuficiente de {$item->nombre}. Disponible: {$item->stock}";
-                }
-
-                $item->decrement('stock', $cantidad);
-
-                MovimientoInventario::create([
-                    'negocio_id'     => $negocio->id,
-                    'item_id'        => $item->id,
-                    'tipo'           => 'salida',
-                    'cantidad'       => $cantidad,
-                    'costo_unitario' => $costo,
-                    'referencia_id'  => $movCaja->id,
-                    'fecha'          => $request->fecha,
-                ]);
-
-                $subtotal   = $precio * $cantidad;
-                $costoTotal = $costo * $cantidad;
-                $markup     = $costo > 0 ? round((($precio - $costo) / $costo) * 100, 2) : null;
-                $margenReal = $precio > 0 ? round((($precio - $costo) / $precio) * 100, 2) : null;
-
-                VentaDetalle::create([
-                    'movimiento_caja_id' => $movCaja->id,
-                    'item_id'            => $item->id,
-                    'cantidad'           => $cantidad,
-                    'precio_unitario'    => $precio,
-                    'costo_unitario'     => $costo,
-                    'costo_total'        => $costoTotal,
-                    'subtotal'           => $subtotal,
-                    'markup'             => $markup,
-                    'margen_real'        => $margenReal,
-                ]);
-            }
-        });
-
-        $mensaje = 'Venta registrada correctamente.';
-        if (!empty($advertencias)) {
-            $mensaje .= ' | ' . implode(' | ', $advertencias);
-        }
-
-        return redirect()->route('dashboard')->with('success', $mensaje)->with('nueva_venta_id', $movCaja->id);
+            ->with('success', 'Venta registrada correctamente.')
+            ->with('nueva_venta_id', $this->ventaServicioService->registrar($request, $negocio)->id);
     }
 
     // =====================================================

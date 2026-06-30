@@ -10,6 +10,7 @@ use App\Models\MovimientoInventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\RegistrarCompraRequest;
 
 class CompraController extends Controller
 {
@@ -28,33 +29,9 @@ class CompraController extends Controller
     }
 
     // Guardar compra
-    public function store(Request $request)
+    public function store(RegistrarCompraRequest $request)
     {
         $negocio = Auth::user()->negocio;
-
-        // Adaptamos el request si viene del formulario simple del Dashboard
-        if ($request->has('item_id')) {
-            $request->merge([
-                'items' => [
-                    [
-                        'item_id' => $request->item_id,
-                        'cantidad' => $request->cantidad,
-                        'costo_unitario' => $request->costo_unitario,
-                    ]
-                ],
-                'fecha' => $request->fecha ?? now()->toDateString(),
-                'descripcion' => $request->referencia ?? 'Compra rápida Dashboard'
-            ]);
-        }
-
-        $request->validate([
-            'fecha'                         => 'required|date',
-            'descripcion'                   => 'nullable|string|max:255',
-            'items'                         => 'required|array|min:1',
-            'items.*.item_id'               => 'required|exists:items,id',
-            'items.*.cantidad'              => 'required|numeric|min:0.001',
-            'items.*.costo_unitario'        => 'nullable|numeric|min:0',
-        ]);
 
         DB::transaction(function () use ($request, $negocio) {
 

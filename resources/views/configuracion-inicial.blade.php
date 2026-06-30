@@ -11,12 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center px-4 py-12 relative overflow-x-hidden">
+<body class="bg-slate-50 min-h-screen px-4 py-12 relative overflow-x-hidden">
     {{-- Decorative Background Blobs --}}
-    <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-    <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-100/40 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-100/40 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3"></div>
+    </div>
 
-    <div class="w-full max-w-2xl">
+    <div class="w-full max-w-2xl mx-auto relative z-10">
 
         {{-- Logo --}}
         <div class="flex items-center gap-2 justify-center mb-8">
@@ -415,11 +417,13 @@
                         <i class="bi bi-arrow-left mr-1.5"></i> Anterior
                     </button>
                     <button type="button" id="btnNext"
-                        class="flex-1 bg-gradient-to-r from-[#2d4a35] to-[#3d5e45] text-white text-sm font-medium px-8 py-3 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        class="flex-1 bg-[#2d4a35] text-white text-sm font-medium px-8 py-3 rounded-xl hover:bg-[#3d5e45] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                        style="background-color: #2d4a35;">
                         Siguiente <i class="bi bi-arrow-right ml-1.5"></i>
                     </button>
                     <button type="submit" id="btnSubmit"
-                        class="hidden flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium px-8 py-3 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        class="hidden flex-1 bg-[#2d4a35] text-white text-sm font-medium px-8 py-3 rounded-xl hover:bg-[#3d5e45] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                        style="background-color: #2d4a35;">
                         Finalizar e Ingresar <i class="bi bi-check2-circle ml-1.5"></i>
                     </button>
                 </div>
@@ -441,27 +445,50 @@
     // SELECCIÓN TIPO DE NEGOCIO
     // =====================================================
     function seleccionarTipo(tipo) {
+        if (!tipo) tipo = 'servicios';
         tipoNegocio = tipo;
-        document.getElementById('tipoNegocioInput').value = tipo;
+        const inputEl = document.getElementById('tipoNegocioInput');
+        if (inputEl) inputEl.value = tipo;
 
         // Actualizar tarjetas
         document.querySelectorAll('.tipo-card').forEach(card => {
             card.classList.remove('selected', 'border-[#2d4a35]', 'bg-[#f0f7f2]');
             card.classList.add('border-[#e8e4e0]');
-            card.querySelector('.tipo-icon').classList.remove('bg-[#2d4a35]', 'text-white');
-            card.querySelector('.tipo-icon').classList.add('bg-[#f0ede8]', 'text-[#8a8280]');
-            card.querySelector('.tipo-title').classList.remove('text-[#2d4a35]');
-            card.querySelector('.tipo-title').classList.add('text-[#5a5250]');
+            
+            const icon = card.querySelector('.tipo-icon');
+            if (icon) {
+                icon.classList.remove('bg-[#2d4a35]', 'text-white');
+                icon.classList.add('bg-[#f0ede8]', 'text-[#8a8280]');
+            }
+            
+            const title = card.querySelector('.tipo-title');
+            if (title) {
+                title.classList.remove('text-[#2d4a35]');
+                title.classList.add('text-[#5a5250]');
+            }
         });
 
         const cards = { servicios: 0, reventa: 1, produccion: 2 };
-        const selectedCard = document.querySelectorAll('.tipo-card')[cards[tipo]];
-        selectedCard.classList.add('selected', 'border-[#2d4a35]', 'bg-[#f0f7f2]');
-        selectedCard.classList.remove('border-[#e8e4e0]');
-        selectedCard.querySelector('.tipo-icon').classList.add('bg-[#2d4a35]', 'text-white');
-        selectedCard.querySelector('.tipo-icon').classList.remove('bg-[#f0ede8]', 'text-[#8a8280]');
-        selectedCard.querySelector('.tipo-title').classList.add('text-[#2d4a35]');
-        selectedCard.querySelector('.tipo-title').classList.remove('text-[#5a5250]');
+        const idx = cards[tipo];
+        if (idx !== undefined) {
+            const selectedCard = document.querySelectorAll('.tipo-card')[idx];
+            if (selectedCard) {
+                selectedCard.classList.add('selected', 'border-[#2d4a35]', 'bg-[#f0f7f2]');
+                selectedCard.classList.remove('border-[#e8e4e0]');
+                
+                const icon = selectedCard.querySelector('.tipo-icon');
+                if (icon) {
+                    icon.classList.add('bg-[#2d4a35]', 'text-white');
+                    icon.classList.remove('bg-[#f0ede8]', 'text-[#8a8280]');
+                }
+                
+                const title = selectedCard.querySelector('.tipo-title');
+                if (title) {
+                    title.classList.add('text-[#2d4a35]');
+                    title.classList.remove('text-[#5a5250]');
+                }
+            }
+        }
 
         actualizarVistaPorTipo();
     }
@@ -470,9 +497,14 @@
         const esServicios = tipoNegocio === 'servicios';
 
         // Paso 3: mostrar sección correcta
-        document.getElementById('step3_servicios').classList.toggle('hidden', !esServicios);
-        document.getElementById('step3_reventa').classList.toggle('hidden', tipoNegocio !== 'reventa');
-        document.getElementById('step3_produccion').classList.toggle('hidden', tipoNegocio !== 'produccion');
+        const step3Servicios = document.getElementById('step3_servicios');
+        if (step3Servicios) step3Servicios.classList.toggle('hidden', !esServicios);
+        
+        const step3Reventa = document.getElementById('step3_reventa');
+        if (step3Reventa) step3Reventa.classList.toggle('hidden', tipoNegocio !== 'reventa');
+        
+        const step3Produccion = document.getElementById('step3_produccion');
+        if (step3Produccion) step3Produccion.classList.toggle('hidden', tipoNegocio !== 'produccion');
 
         // Campo margen: requerido solo para servicios
         const margenInput = document.getElementById('margenInput');
@@ -499,8 +531,11 @@
         }
 
         // Paso 7: ingresos proyectados solo para servicios
-        document.getElementById('ingresosProyectadosField').classList.toggle('hidden', !esServicios);
-        document.getElementById('ingresosProyectadosMsg').classList.toggle('hidden', esServicios);
+        const ipField = document.getElementById('ingresosProyectadosField');
+        if (ipField) ipField.classList.toggle('hidden', !esServicios);
+        
+        const ipMsg = document.getElementById('ingresosProyectadosMsg');
+        if (ipMsg) ipMsg.classList.toggle('hidden', esServicios);
 
         // Indicador PE: texto diferente para inventario
         const mensajePE = document.getElementById('mensajePE');
