@@ -1,0 +1,13 @@
+.git
+.env
+.env.*
+node_modules
+vendor
+npm-debug.log
+yarn-error.log
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+phpunit.xml
+tests
