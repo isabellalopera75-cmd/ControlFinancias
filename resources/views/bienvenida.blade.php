@@ -14,6 +14,29 @@
 <div class="bg-pattern"></div>
 
 {{-- HERO --}}
+<a href="https://isita.online" style="
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px dashed rgba(148, 163, 184, 0.5);
+    border-radius: 999px;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    z-index: 100;
+    font-family: 'DM Sans', sans-serif;
+" onmouseover="this.style.background='rgba(255,255,255,0.8)';this.style.borderColor='rgba(148,163,184,0.8)'" onmouseout="this.style.background='rgba(255,255,255,0.5)';this.style.borderColor='rgba(148,163,184,0.5)'">
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+    Volver a isita.online
+</a>
 <section class="hero">
 
   <div class="logo">

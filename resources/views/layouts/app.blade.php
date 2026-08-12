@@ -13,6 +13,13 @@
 </head>
 <body class="bg-gradient-to-br from-[#fbfcfc] to-[#f0f4f8] min-h-screen selection:bg-[#4a7c59] selection:text-white text-slate-800">
 
+    @if(Auth::check() && Auth::user()->email === 'demo@impulweb.test')
+    <div class="bg-gradient-to-r from-emerald-600 to-[#4a7c59] text-white text-center py-2 px-4 text-xs md:text-sm font-medium tracking-wide shadow-sm z-[60] relative flex items-center justify-center gap-2">
+        <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+        <span>Estás en el <strong>Entorno de Demostración</strong>. Algunas funciones están restringidas.</span>
+    </div>
+    @endif
+
     @if(isset($negocio))
     <nav class="bg-white/60 backdrop-blur-xl border-b border-white/40 shadow-sm px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0 sticky top-0 z-50">
 
@@ -26,6 +33,11 @@
 
         {{-- Acciones --}}
         <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+
+            <a href="https://isita.online" class="nav-btn-slate border-dashed opacity-70 hover:opacity-100">
+                <i class="bi bi-arrow-left text-sm"></i>
+                <span class="hidden sm:inline">Volver a isita.online</span>
+            </a>
 
             {{-- Botón Recomendaciones --}}
             @if(Route::currentRouteName() === 'dashboard')
