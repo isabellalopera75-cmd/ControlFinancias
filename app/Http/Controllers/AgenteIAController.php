@@ -12,6 +12,18 @@ class AgenteIAController extends Controller
 {
     public function analizar(Request $request)
     {
+        // Verificar que la API key esté configurada
+        if (empty(config('services.openai.key'))) {
+            return response()->json([
+                'analisis' => "📊 RESUMEN\nEl análisis con inteligencia artificial no está disponible en este momento porque no se ha configurado la clave de API.\n\n📈 COMPARACIÓN CON EL PERÍODO ANTERIOR\nFunción no disponible sin API key configurada.\n\n✅ 3 RECOMENDACIONES CONCRETAS\n1. Configura tu clave de OpenAI en el archivo .env para activar esta función.\n2. Puedes obtener una clave en platform.openai.com\n3. Una vez configurada, el análisis se generará automáticamente.\n\n⚠️ ALERTA\nEsta es una demostración. En producción, el agente IA analiza tus ventas reales.",
+                'meta' => [
+                    'periodo'   => 'Demo',
+                    'total'     => '0',
+                    'variacion' => '0%',
+                ]
+            ]);
+        }
+
         $negocio = Auth::user()->negocio;
         abort_if(!$negocio->esReventa(), 403);
 

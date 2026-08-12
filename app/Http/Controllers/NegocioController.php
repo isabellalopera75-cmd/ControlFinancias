@@ -205,20 +205,22 @@ class NegocioController extends Controller
 
     public function eliminarGastoFijo($id)
     {
-        GastoFijo::findOrFail($id)->delete();
+        $gasto = GastoFijo::where('negocio_id', Auth::user()->negocio->id)->findOrFail($id);
+        $gasto->delete();
         return redirect('/configuracion/editar')->with('success', 'Gasto fijo eliminado.');
     }
 
     public function editarGastoFijo($id)
     {
-        $gastoFijo = GastoFijo::findOrFail($id);
+        $gastoFijo = GastoFijo::where('negocio_id', Auth::user()->negocio->id)->findOrFail($id);
         return view('gastofijo.editar', compact('gastoFijo'));
     }
 
     public function actualizarGastoFijo(Request $request, $id)
     {
         $request->validate(['descripcion' => 'required', 'monto' => 'required|numeric|min:0']);
-        GastoFijo::findOrFail($id)->update(['descripcion' => $request->descripcion, 'monto' => $request->monto]);
+        $gasto = GastoFijo::where('negocio_id', Auth::user()->negocio->id)->findOrFail($id);
+        $gasto->update(['descripcion' => $request->descripcion, 'monto' => $request->monto]);
         return redirect('/configuracion/editar')->with('success', 'Gasto fijo actualizado.');
     }
 

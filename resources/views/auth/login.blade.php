@@ -151,7 +151,26 @@
                 });
             </script>
 
-            <p class="fade-up d-3 mt-8 text-center text-sm text-[#64748b]">
+            {{-- Demo Access Card --}}
+            <div class="fade-up d-3 mt-6 p-5 rounded-2xl border border-[#d1fae5] bg-[#ecfdf5]/60 backdrop-blur-sm">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></div>
+                    <span class="text-[10px] tracking-[0.15em] uppercase text-[#059669] font-bold">Demo disponible</span>
+                </div>
+                <p class="text-xs text-[#64748b] mb-3">Explora ImpulWeb con datos de ejemplo. Sin registro.</p>
+                <div class="text-xs text-[#64748b] mb-3 space-y-1">
+                    <div><span class="font-medium text-[#475569]">Correo:</span> demo@impulweb.test</div>
+                    <div><span class="font-medium text-[#475569]">Contraseña:</span> demo1234</div>
+                </div>
+                <form action="/login-demo" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full py-2.5 bg-[#10b981] text-white rounded-xl text-xs font-medium hover:bg-[#059669] transition-colors flex justify-center items-center gap-1.5">
+                        🚀 Entrar como demo
+                    </button>
+                </form>
+            </div>
+
+            <p class="fade-up d-3 mt-6 text-center text-sm text-[#64748b]">
                 ¿No tienes cuenta? <a href="/configuracion-inicial" class="text-[#10b981] font-medium hover:underline transition-colors">Crea tu negocio gratis</a>
             </p>
         </div>

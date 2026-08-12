@@ -45,6 +45,36 @@
     </a>
   </div>
 
+  {{-- Botón Demo --}}
+  <div class="reveal" style="margin-top: 1.2rem; text-align: center;">
+    <form action="/login-demo" method="POST" style="display: inline;">
+      @csrf
+      <button type="submit" class="btn-demo" style="
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.8rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        font-family: 'DM Sans', sans-serif;
+      " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.3)'">
+        🚀 Probar demo
+      </button>
+    </form>
+    <p style="margin-top: 0.6rem; font-size: 0.8rem; color: #94a3b8; font-family: 'DM Sans', sans-serif;">
+      Explora el panel con datos de ejemplo · Sin registro necesario
+    </p>
+  </div>
+
+
   <div class="stats reveal">
     <div class="stat">
       <div class="stat-num">+500<em>.</em></div>

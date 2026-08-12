@@ -23,11 +23,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/verificar-email', [NegocioController::class, 'verificarEmail']);
+Route::post('/login-demo', [AuthController::class, 'loginDemo'])->name('login.demo');
 
 // =====================================================
 // RUTAS PROTEGIDAS
 // =====================================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'demo.restrict'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [NegocioController::class, 'showDashboard'])->name('dashboard');

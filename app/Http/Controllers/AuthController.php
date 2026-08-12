@@ -64,4 +64,21 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect('/login');
     }
+
+    /**
+     * Login rápido con la cuenta demo (para demostración de portafolio).
+     */
+    public function loginDemo(Request $request)
+    {
+        $demo = User::where('email', 'demo@impulweb.test')->first();
+
+        if (!$demo) {
+            return redirect('/login')->with('error', 'La cuenta demo no está configurada. Ejecuta el seeder primero.');
+        }
+
+        Auth::login($demo);
+        $request->session()->regenerate();
+
+        return redirect('/dashboard');
+    }
 }
