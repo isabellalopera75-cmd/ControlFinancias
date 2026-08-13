@@ -45,7 +45,7 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
       # Opcional: Para montar tu esquema inicial
-      # - ./esquema.sql:/docker-entrypoint-initdb.d/esquema.sql
+      - ./esquema.sql:/docker-entrypoint-initdb.d/esquema.sql
 
 volumes:
   dbdata:

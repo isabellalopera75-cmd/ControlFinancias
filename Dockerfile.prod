@@ -1,0 +1,58 @@
+FROM php:8.3-fpm-alpine
+
+# Instalar dependencias del sistema requeridas para PHP, Nginx y Node
+RUN apk add --no-cache \
+    nginx \
+    git \
+    curl \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    bash \
+    nodejs \
+    npm \
+    libzip-dev
+
+# Configurar e instalar extensiones de PHP
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring pcntl bcmath gd zip
+
+# Obtener la última versión de Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configurar el directorio de trabajo
+WORKDIR /var/www/html
+
+# Copiar la configuración de Nginx (usaremos la que ya tienes, que apunta a 127.0.0.1:9000 o la adaptaremos dinámicamente)
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# Revertir el fastcgi_pass en la configuración de Nginx para que funcione en un solo contenedor
+RUN sed -i 's/fastcgi_pass app:9000;/fastcgi_pass 127.0.0.1:9000;/g' /etc/nginx/http.d/default.conf
+
+# Copiar los archivos de la aplicación (el código fuente)
+COPY . .
+
+# Instalar dependencias de PHP para producción
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Instalar dependencias de Node.js, compilar assets de Vite y limpiar node_modules para ahorrar espacio
+RUN npm install && npm run build && rm -rf node_modules
+
+# Configurar permisos para los directorios críticos de Laravel
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
+
+# Copiar el entrypoint de producción y darle permisos de ejecución
+COPY docker/entrypoint.prod.sh /usr/local/bin/entrypoint.prod.sh
+RUN chmod +x /usr/local/bin/entrypoint.prod.sh
+
+# Exponer el puerto 80 para Dokploy
+EXPOSE 80
+
+# Ejecutar el script que inicia PHP-FPM y Nginx
+ENTRYPOINT ["entrypoint.prod.sh"]
