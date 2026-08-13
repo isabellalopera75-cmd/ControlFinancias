@@ -4,17 +4,48 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: impulweb-app
+      dockerfile: docker/php/Dockerfile
+    image: controlfinancias-app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-controlfinancias}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "80"
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - DB_CONNECTION=mysql
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT:-3306}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-controlfinancias}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - dbdata:/var/lib/mysql
+      # Opcional: Para montar tu esquema inicial
+      # - ./esquema.sql:/docker-entrypoint-initdb.d/esquema.sql
+
+volumes:
+  dbdata:
