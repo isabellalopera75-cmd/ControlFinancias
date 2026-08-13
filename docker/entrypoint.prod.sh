@@ -12,6 +12,9 @@ php artisan event:cache
 # (Opcional) Ejecutar migraciones automáticamente de forma segura
 php artisan migrate --force
 
+# Arreglar permisos en caso de que algún comando de artisan (como migraciones) haya creado archivos como root
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Iniciar php-fpm en segundo plano
 php-fpm -D
 
